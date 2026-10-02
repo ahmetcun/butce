@@ -9,8 +9,10 @@ Aile bütçesi takip uygulaması. Akbank mobil uygulamasının düzeninden ilham
 - **Aile üyeleri:** Her işlem kimin yaptığıyla kaydedilir ve kişiye göre filtrelenebilir.
 - **Bütçe limitleri:** Kategori başına aylık limit konur. Limitin %80'i geçilince sarı, aşılınca kırmızı uyarı verilir.
 - **Düzenli ödemeler:** Kira, fatura ve kredi kartı ödemeleri takip edilir. "Ödendi" işaretlenen ödeme otomatik olarak gider kaydına eklenir.
+- **Ödeme hatırlatmaları:** Faturanın son gününden 1-5 gün önce ve son gün, seçilen saatte bildirim gelir. Ödendi işaretlenince o ayın hatırlatması iptal olur.
 - **Birikim hedefleri:** Hedef tutarı ve ilerleme gösterilir, hedefe hızlıca para eklenebilir.
-- **Kişiselleştirme:** 5 renk teması, açık/koyu mod, ana sayfa bölümlerini gizleme ve sıralama, tutarları gizleme.
+- **Kişiselleştirme:** 5 renk teması, açık/koyu mod, ana sayfa bölümlerini sürükleyerek sıralama ve gizleme, tutarları gizleme.
+- **Animasyonlu alt bar:** Yüzen kapsül şeklinde. Aktif sekme vurgusu yaylı animasyonla kayar. iOS 26'da Liquid Glass efekti kullanılır.
 
 ## Teknolojiler
 
@@ -23,6 +25,9 @@ Aile bütçesi takip uygulaması. Akbank mobil uygulamasının düzeninden ilham
 | Kalıcı veri | `expo-sqlite/kv-store` (telefon), `localStorage` (web) |
 | İkonlar | `expo-symbols` (iOS'ta SF Symbols, Android/web'de Material Symbols) |
 | Dokunsal geri bildirim | `expo-haptics` |
+| Animasyon ve jestler | `react-native-reanimated`, `react-native-gesture-handler` |
+| Bildirimler | `expo-notifications` (yerel, planlı) |
+| Cam efekti | `expo-glass-effect` |
 
 Veriler şimdilik yalnızca cihazda tutuluyor. Aile üyelerinin farklı telefonlardan aynı bütçeyi görmesi için ileride bir senkronizasyon katmanı eklenecek (örneğin Supabase).
 

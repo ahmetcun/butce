@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type RefreshControlProps } from 'react-native';
+import { StyleSheet, View, type RefreshControlProps } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TAB_BAR_SPACE } from '@/components/tab-bar';
 import { T } from '@/components/ui';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -34,7 +36,7 @@ export function Screen({
     <View style={{ flex: 1, backgroundColor: t.background }}>
       <ScrollView
         refreshControl={refreshControl}
-        contentContainerStyle={{ paddingBottom: Spacing.six }}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_SPACE }}
         showsVerticalScrollIndicator={false}>
         <View
           style={[

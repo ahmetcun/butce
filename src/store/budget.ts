@@ -65,6 +65,12 @@ export type Settings = {
   homeSections: { key: HomeSectionKey; visible: boolean }[];
   /** Ekle ekranında varsayılan olarak seçili üye */
   defaultMemberId: string;
+  /** Düzenli ödemeler için hatırlatma bildirimi */
+  billReminders: boolean;
+  /** Son ödeme gününden kaç gün önce hatırlatılsın */
+  reminderDaysBefore: number;
+  /** Hatırlatma saati (0-23) */
+  reminderHour: number;
 };
 
 type State = {
@@ -80,7 +86,7 @@ type State = {
 type Actions = {
   completeOnboarding: (p: { userName: string; familyName: string; accent: AccentKey; demo: boolean }) => void;
   updateSettings: (p: Partial<Settings>) => void;
-  moveHomeSection: (key: HomeSectionKey, delta: -1 | 1) => void;
+  reorderHomeSections: (keys: HomeSectionKey[]) => void;
   toggleHomeSection: (key: HomeSectionKey) => void;
 
   addTransaction: (t: Omit<Transaction, 'id' | 'date'> & { date?: string }) => void;
@@ -137,6 +143,9 @@ const defaultSettings: Settings = {
     { key: 'recent', visible: true },
   ],
   defaultMemberId: ME,
+  billReminders: false,
+  reminderDaysBefore: 2,
+  reminderHour: 9,
 };
 
 const initialState: State = {
@@ -212,13 +221,10 @@ export const useBudget = create<State & Actions>()(
 
       updateSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
 
-      moveHomeSection: (key, delta) =>
+      reorderHomeSections: (keys) =>
         set((s) => {
-          const list = [...s.settings.homeSections];
-          const i = list.findIndex((x) => x.key === key);
-          const j = i + delta;
-          if (i < 0 || j < 0 || j >= list.length) return s;
-          [list[i], list[j]] = [list[j], list[i]];
+          const byKey = new Map(s.settings.homeSections.map((x) => [x.key, x]));
+          const list = keys.map((k) => byKey.get(k)).filter((x) => x !== undefined);
           return { settings: { ...s.settings, homeSections: list } };
         }),
 
@@ -298,6 +304,11 @@ export const useBudget = create<State & Actions>()(
     {
       name: 'aile-butce-v1',
       storage: createJSONStorage(() => storage),
+      // Yeni eklenen ayarlar eski kayıtlarda yok; varsayılanlarla tamamla
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<State>;
+        return { ...current, ...p, settings: { ...current.settings, ...p.settings } };
+      },
       partialize: (s) => Object.fromEntries(Object.entries(s).filter(([, v]) => typeof v !== 'function')) as State,
     },
   ),

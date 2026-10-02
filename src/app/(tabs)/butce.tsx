@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
@@ -7,6 +8,7 @@ import { Card, Chip, EmptyState, IconBubble, ProgressBar, Row, SectionHeader, T,
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
+import { remindersSupported, requestReminderPermission } from '@/lib/reminders';
 import { formatMoney, monthKey, monthLabel } from '@/lib/format';
 import { monthTransactions, spendByCategory } from '@/lib/selectors';
 import { useBudget } from '@/store/budget';
@@ -15,7 +17,15 @@ type Tab = 'limits' | 'bills' | 'goals';
 
 export default function Budget() {
   const t = useTheme();
-  const [tab, setTab] = useState<Tab>('limits');
+  const params = useLocalSearchParams<{ tab?: Tab }>();
+  const [tab, setTab] = useState<Tab>(params.tab ?? 'limits');
+
+  // Ana sayfadan ya da bildirimden belirli bir sekmeyle gelindiğinde
+  const [lastParam, setLastParam] = useState(params.tab);
+  if (params.tab !== lastParam) {
+    setLastParam(params.tab);
+    if (params.tab) setTab(params.tab);
+  }
 
   return (
     <Screen
@@ -192,6 +202,8 @@ function Bills() {
         </Card>
       ) : null}
 
+      <ReminderPrompt />
+
       <SectionHeader title="Düzenli Ödemeler" action={adding ? 'Vazgeç' : '+ Ekle'} onAction={() => setAdding((a) => !a)} />
 
       {adding ? (
@@ -254,6 +266,41 @@ function Bills() {
         </T>
       ) : null}
     </View>
+  );
+}
+
+/** Hatırlatmalar kapalıysa Ödemeler sekmesinde açma önerisi gösterir. */
+function ReminderPrompt() {
+  const t = useTheme();
+  const enabled = useBudget((s) => s.settings.billReminders);
+  const hasBills = useBudget((s) => s.bills.length > 0);
+  const updateSettings = useBudget((s) => s.updateSettings);
+  const [denied, setDenied] = useState(false);
+
+  if (!remindersSupported || enabled || !hasBills) return null;
+
+  return (
+    <Card style={{ marginTop: Spacing.three, backgroundColor: t.primarySoft, borderColor: t.primarySoft }}>
+      <Row style={{ gap: Spacing.three }}>
+        <Icon name="bell" color={t.primary} size={26} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <T v="bodyBold">Son ödeme gününü kaçırma</T>
+          <T v="small" muted>
+            {denied ? 'Bildirim izni kapalı. Telefonun Ayarlar > Bildirimler kısmından açabilirsin.' : 'Ödemeden önce ve ödeme günü bildirim gönderelim.'}
+          </T>
+        </View>
+        {!denied ? (
+          <SmallBtn
+            label="Aç"
+            onPress={async () => {
+              const ok = await requestReminderPermission();
+              if (ok) updateSettings({ billReminders: true });
+              else setDenied(true);
+            }}
+          />
+        ) : null}
+      </Row>
+    </Card>
   );
 }
 

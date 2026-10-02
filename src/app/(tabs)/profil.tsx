@@ -3,12 +3,15 @@ import { StyleSheet, Switch, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
+import { SortableList } from '@/components/sortable-list';
 import { Card, Chip, Row, SectionHeader, T, Touch } from '@/components/ui';
 import { Accents, Radius, Spacing, type AccentKey } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
-import { HomeSectionNames, useBudget } from '@/store/budget';
+import { remindersSupported, requestReminderPermission } from '@/lib/reminders';
+import { HomeSectionNames, useBudget, type HomeSectionKey } from '@/store/budget';
 
+const SECTION_ROW = 56;
 const MEMBER_EMOJIS = ['🙂', '💐', '🧔', '👩', '🧒', '👧', '👦', '👵', '👴', '🐶'];
 
 export default function Profile() {
@@ -16,7 +19,7 @@ export default function Profile() {
   const settings = useBudget((s) => s.settings);
   const members = useBudget((s) => s.members);
   const updateSettings = useBudget((s) => s.updateSettings);
-  const moveHomeSection = useBudget((s) => s.moveHomeSection);
+  const reorderHomeSections = useBudget((s) => s.reorderHomeSections);
   const toggleHomeSection = useBudget((s) => s.toggleHomeSection);
   const addMember = useBudget((s) => s.addMember);
   const removeMember = useBudget((s) => s.removeMember);
@@ -25,6 +28,7 @@ export default function Profile() {
   const [newName, setNewName] = useState('');
   const [newEmoji, setNewEmoji] = useState(MEMBER_EMOJIS[1]);
   const [adding, setAdding] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   const initial = (settings.userName || 'B').charAt(0).toLocaleUpperCase('tr');
 
@@ -106,29 +110,84 @@ export default function Profile() {
         </Row>
       </Card>
 
+      {/* Bildirimler */}
+      <SectionHeader title="Bildirimler" />
+      <Card style={{ gap: Spacing.three }}>
+        <Row style={{ justifyContent: 'space-between', gap: Spacing.three }}>
+          <View style={{ flex: 1 }}>
+            <T v="bodyBold">Ödeme hatırlatmaları</T>
+            <T v="small" muted>
+              {!remindersSupported
+                ? 'Bildirimler yalnızca telefonda çalışır.'
+                : permissionDenied
+                  ? 'İzin kapalı. Telefonun Ayarlar > Bildirimler kısmından aç.'
+                  : 'Faturaların son gününden önce ve son gün haber verir.'}
+            </T>
+          </View>
+          <Switch
+            disabled={!remindersSupported}
+            value={settings.billReminders}
+            trackColor={{ true: t.primary }}
+            onValueChange={async (on) => {
+              if (!on) return updateSettings({ billReminders: false });
+              const ok = await requestReminderPermission();
+              setPermissionDenied(!ok);
+              if (ok) updateSettings({ billReminders: true });
+            }}
+          />
+        </Row>
+        {settings.billReminders ? (
+          <>
+            <T v="small" muted>
+              Ne zaman haber verelim?
+            </T>
+            <Row style={{ gap: 6, flexWrap: 'wrap' }}>
+              {[1, 2, 3, 5].map((d) => (
+                <Chip
+                  key={d}
+                  label={`${d} gün önce`}
+                  selected={settings.reminderDaysBefore === d}
+                  onPress={() => updateSettings({ reminderDaysBefore: d })}
+                />
+              ))}
+            </Row>
+            <T v="small" muted>
+              Saat
+            </T>
+            <Row style={{ gap: 6, flexWrap: 'wrap' }}>
+              {[9, 12, 19].map((h) => (
+                <Chip
+                  key={h}
+                  label={`${String(h).padStart(2, '0')}:00`}
+                  selected={settings.reminderHour === h}
+                  onPress={() => updateSettings({ reminderHour: h })}
+                />
+              ))}
+            </Row>
+          </>
+        ) : null}
+      </Card>
+
       {/* Ana sayfa düzeni */}
       <SectionHeader title="Ana Sayfa Düzeni" />
       <T v="small" muted style={{ marginTop: -4, marginBottom: Spacing.two }}>
-        Görmek istediğin bölümleri seç, oklarla sırala.
+        Bölümleri ≡ tutamacından tutup sürükleyerek sırala, anahtarla gizle.
       </T>
       <Card style={{ paddingVertical: Spacing.one }}>
-        {settings.homeSections.map((s, i) => (
-          <Row key={s.key} style={[styles.listRow, { borderBottomColor: t.border }, i === settings.homeSections.length - 1 && { borderBottomWidth: 0 }]}>
-            <Switch value={s.visible} onValueChange={() => toggleHomeSection(s.key)} trackColor={{ true: t.primary }} />
-            <T v="bodyBold" style={{ flex: 1, opacity: s.visible ? 1 : 0.5 }}>
-              {HomeSectionNames[s.key]}
-            </T>
-            <Touch onPress={() => moveHomeSection(s.key, -1)} hitSlop={8} style={{ opacity: i === 0 ? 0.25 : 1, transform: [{ rotate: '-90deg' }] }}>
-              <Icon name="chevronRight" color={t.text} size={20} />
-            </Touch>
-            <Touch
-              onPress={() => moveHomeSection(s.key, 1)}
-              hitSlop={8}
-              style={{ opacity: i === settings.homeSections.length - 1 ? 0.25 : 1, transform: [{ rotate: '90deg' }] }}>
-              <Icon name="chevronRight" color={t.text} size={20} />
-            </Touch>
-          </Row>
-        ))}
+        <SortableList
+          data={settings.homeSections}
+          rowHeight={SECTION_ROW}
+          onReorder={(keys) => reorderHomeSections(keys as HomeSectionKey[])}
+          renderItem={(s, handle) => (
+            <Row style={[styles.sortRow, { backgroundColor: t.surface }]}>
+              {handle}
+              <T v="bodyBold" style={{ flex: 1, opacity: s.visible ? 1 : 0.5 }}>
+                {HomeSectionNames[s.key]}
+              </T>
+              <Switch value={s.visible} onValueChange={() => toggleHomeSection(s.key)} trackColor={{ true: t.primary }} />
+            </Row>
+          )}
+        />
       </Card>
 
       {/* Aile */}
@@ -240,6 +299,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sortRow: {
+    height: SECTION_ROW,
+    gap: Spacing.two,
+    borderRadius: Radius.sm,
   },
   listRow: {
     gap: Spacing.three,

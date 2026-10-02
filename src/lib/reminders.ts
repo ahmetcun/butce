@@ -1,0 +1,96 @@
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
+import { formatMoney, monthKey } from '@/lib/format';
+import type { Bill, Settings } from '@/store/budget';
+
+const CHANNEL = 'odemeler';
+/** iOS en fazla 64 planlı bildirime izin veriyor */
+const MAX_SCHEDULED = 60;
+const MONTHS_AHEAD = 3;
+
+export const remindersSupported = true;
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+/** İzin ister; verildiyse true döner. */
+export async function requestReminderPermission() {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync(CHANNEL, {
+      name: 'Ödeme hatırlatmaları',
+      importance: Notifications.AndroidImportance.HIGH,
+    });
+  }
+  const current = await Notifications.getPermissionsAsync();
+  if (current.granted) return true;
+  if (!current.canAskAgain) return false;
+  const res = await Notifications.requestPermissionsAsync();
+  return res.granted;
+}
+
+/**
+ * Tüm hatırlatmaları silip baştan planlar. Ödenmemiş her fatura için
+ * önümüzdeki aylarda "X gün kaldı" ve "bugün son gün" bildirimleri kurulur.
+ */
+export async function syncBillReminders(bills: Bill[], settings: Settings) {
+  await Notifications.cancelAllScheduledNotificationsAsync();
+  if (!settings.billReminders || bills.length === 0) return;
+
+  const { granted } = await Notifications.getPermissionsAsync();
+  if (!granted) return;
+
+  const now = new Date();
+  const items: { date: Date; title: string; body: string }[] = [];
+
+  for (let m = 0; m < MONTHS_AHEAD; m++) {
+    const year = now.getFullYear();
+    const month = now.getMonth() + m;
+    const key = monthKey(new Date(year, month, 1));
+    const lastDay = new Date(year, month + 1, 0).getDate();
+
+    for (const b of bills) {
+      if (b.paidMonths.includes(key)) continue;
+      const due = new Date(year, month, Math.min(b.day, lastDay), settings.reminderHour);
+      const amount = formatMoney(b.amount, { decimals: false });
+
+      if (settings.reminderDaysBefore > 0) {
+        const before = new Date(due);
+        before.setDate(due.getDate() - settings.reminderDaysBefore);
+        items.push({
+          date: before,
+          title: `${b.name} ödemesi yaklaşıyor`,
+          body: `${settings.reminderDaysBefore} gün sonra son gün · ${amount}`,
+        });
+      }
+      items.push({ date: due, title: `Bugün ${b.name} ödeme günü`, body: `${amount} ödemeyi unutma. Ödediysen uygulamada işaretle.` });
+    }
+  }
+
+  const upcoming = items
+    .filter((i) => i.date.getTime() > now.getTime())
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .slice(0, MAX_SCHEDULED);
+
+  for (const i of upcoming) {
+    await Notifications.scheduleNotificationAsync({
+      content: { title: i.title, body: i.body, data: { url: '/butce?tab=bills' } },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: i.date, channelId: CHANNEL },
+    });
+  }
+}
+
+/** Bildirime dokunulunca ilgili ekranı açmak için. */
+export function onReminderTap(handler: (url: string) => void) {
+  const sub = Notifications.addNotificationResponseReceivedListener((res) => {
+    const url = res.notification.request.content.data?.url;
+    if (typeof url === 'string') handler(url);
+  });
+  return () => sub.remove();
+}

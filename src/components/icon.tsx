@@ -36,6 +36,7 @@ export const Glyphs = {
   sliders: { ios: 'slider.horizontal.3', android: 'tune' },
   moon: { ios: 'moon.fill', android: 'dark_mode' },
   arrowUpDown: { ios: 'arrow.up.arrow.down', android: 'swap_vert' },
+  grip: { ios: 'line.3.horizontal', android: 'drag_indicator' },
 
   // Kategoriler
   cart: { ios: 'cart.fill', android: 'shopping_cart' },

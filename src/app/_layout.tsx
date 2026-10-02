@@ -2,7 +2,9 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { useBillReminders } from '@/hooks/use-bill-reminders';
 import { useTheme } from '@/hooks/use-theme';
 import { useBudget, useHydrated } from '@/store/budget';
 
@@ -12,6 +14,7 @@ export default function RootLayout() {
   const hydrated = useHydrated();
   const onboarded = useBudget((s) => s.onboarded);
   const t = useTheme();
+  useBillReminders();
 
   useEffect(() => {
     if (hydrated) SplashScreen.hideAsync();
@@ -22,21 +25,23 @@ export default function RootLayout() {
   const base = t.scheme === 'dark' ? DarkTheme : DefaultTheme;
 
   return (
-    <ThemeProvider
-      value={{
-        ...base,
-        colors: { ...base.colors, primary: t.primary, background: t.background, card: t.surface, text: t.text, border: t.border },
-      }}>
-      <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={onboarded}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="ekle" options={{ presentation: 'modal' }} />
-        </Stack.Protected>
-        <Stack.Protected guard={!onboarded}>
-          <Stack.Screen name="hosgeldin" />
-        </Stack.Protected>
-      </Stack>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider
+        value={{
+          ...base,
+          colors: { ...base.colors, primary: t.primary, background: t.background, card: t.surface, text: t.text, border: t.border },
+        }}>
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Protected guard={onboarded}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="ekle" options={{ presentation: 'modal' }} />
+          </Stack.Protected>
+          <Stack.Protected guard={!onboarded}>
+            <Stack.Screen name="hosgeldin" />
+          </Stack.Protected>
+        </Stack>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

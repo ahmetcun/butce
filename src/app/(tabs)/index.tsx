@@ -61,8 +61,8 @@ export default function Home() {
           color={t.income}
           onPress={() => router.push({ pathname: '/ekle', params: { type: 'income' } })}
         />
-        <QuickAction icon="calendar" label="Ödemeler" color={t.primary} onPress={() => router.push('/butce')} />
-        <QuickAction icon="target" label="Hedefler" color="#8B5CF6" onPress={() => router.push('/butce')} />
+        <QuickAction icon="calendar" label="Ödemeler" color={t.primary} onPress={() => router.push('/butce?tab=bills')} />
+        <QuickAction icon="target" label="Hedefler" color="#8B5CF6" onPress={() => router.push('/butce?tab=goals')} />
       </Card>
 
       {settings.homeSections
@@ -193,7 +193,7 @@ function UpcomingBills() {
 
   return (
     <View>
-      <SectionHeader title="Yaklaşan Ödemeler" action="Tümü" onAction={() => router.push('/butce')} />
+      <SectionHeader title="Yaklaşan Ödemeler" action="Tümü" onAction={() => router.push('/butce?tab=bills')} />
       <Card style={{ paddingVertical: Spacing.two }}>
         {upcoming.length === 0 ? (
           <EmptyState icon="check" text="Bu ayın tüm ödemeleri yapıldı 🎉" />
@@ -272,7 +272,7 @@ function Goals() {
   if (goals.length === 0) return null;
   return (
     <View>
-      <SectionHeader title="Birikim Hedefleri" action="Tümü" onAction={() => router.push('/butce')} />
+      <SectionHeader title="Birikim Hedefleri" action="Tümü" onAction={() => router.push('/butce?tab=goals')} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: Spacing.two }}>
         {goals.map((g) => (
           <Card key={g.id} style={{ width: 200, gap: 8 }}>
