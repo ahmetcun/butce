@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton, TextField } from '@/components/form';
 import { HeroSummary } from '@/components/home/hero';
 import { Icon } from '@/components/icon';
 import { Card, Chip, EmptyState, ProgressBar, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { enter, layout } from '@/constants/motion';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
@@ -26,10 +27,10 @@ export function HedeflerHero({ setAdding, setCustomFor }: { setAdding: (v: boole
       value={saved}
       pill={{ icon: 'target', text: target ? `Hedef: ${formatMoney(target, { decimals: false })}` : 'Henüz hedef yok' }}
       actions={[
-        { icon: 'plusCircle', label: 'Hedef\nekle', onPress: () => setAdding(true) },
-        { icon: 'piggy', label: 'Birikime\npara ekle', onPress: () => setCustomFor(goals[0]?.id ?? null) },
-        { icon: 'arrowDown', label: 'Gelir\nekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
-        { icon: 'dots', label: 'Diğer\nişlemler', onPress: () => router.push('/islemler') },
+        { icon: 'plusCircle', label: 'Hedef ekle', onPress: () => setAdding(true) },
+        { icon: 'piggy', label: 'Para ekle', onPress: () => setCustomFor(goals[0]?.id ?? null) },
+        { icon: 'arrowDown', label: 'Gelir ekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
+        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
       ]}
     />
   );
@@ -89,7 +90,7 @@ export function HedeflerBody({
       </Row>
 
       {adding ? (
-        <Animated.View entering={FadeInDown.springify().damping(18)}>
+        <Animated.View entering={enter}>
           <Card style={{ gap: Spacing.two, marginTop: Spacing.three }}>
             <Row style={{ gap: 6, flexWrap: 'wrap' }}>
               {GOAL_EMOJIS.map((e) => (
@@ -126,7 +127,7 @@ export function HedeflerBody({
           const ratio = g.saved / g.target;
           const done = ratio >= 1;
           return (
-            <Animated.View key={g.id} entering={FadeInDown.delay(i * 40).duration(260)} layout={LinearTransition}>
+            <Animated.View key={g.id} entering={enter} layout={layout}>
               <Card style={{ gap: 12 }}>
                 <Touch haptic={false} pressScale={0.99} onLongPress={() => confirm('Hedef silinsin mi?', `"${g.name}" silinecek.`, () => removeGoal(g.id))}>
                   <Row style={{ gap: 14 }}>
@@ -149,7 +150,7 @@ export function HedeflerBody({
                   {formatMoney(g.saved, { decimals: false })} / {formatMoney(g.target, { decimals: false })}
                 </T>
                 {customFor === g.id ? (
-                  <Animated.View entering={FadeInDown.duration(200)}>
+                  <Animated.View entering={enter}>
                     <Row style={{ gap: Spacing.two }}>
                       <MoneyInput value={custom} onChange={setCustom} placeholder="Eklenecek tutar" autoFocus />
                       <PillButton

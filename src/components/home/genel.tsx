@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
-import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 import { HeroSummary } from '@/components/home/hero';
 import { TransactionRow } from '@/components/transaction-row';
@@ -27,10 +26,10 @@ export function GenelHero({ go }: { go: (b: Bolum) => void }) {
       pill={{ icon: 'calendar', text: monthLabel(month) }}
       onPill={() => router.push('/islemler')}
       actions={[
-        { icon: 'arrowUp', label: 'Gider\nekle', onPress: () => router.push('/ekle') },
-        { icon: 'arrowDown', label: 'Gelir\nekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
-        { icon: 'bill', label: 'Fatura\nöde', onPress: () => go('odemeler') },
-        { icon: 'dots', label: 'Diğer\nişlemler', onPress: () => router.push('/islemler') },
+        { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
+        { icon: 'arrowDown', label: 'Gelir ekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
+        { icon: 'bill', label: 'Faturalar', onPress: () => go('odemeler') },
+        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
       ]}
     />
   );
@@ -45,9 +44,9 @@ export function GenelBody({ go }: { go: (b: Bolum) => void }) {
       {sections
         .filter((s) => s.visible)
         .map((s, i) => (
-          <Animated.View key={s.key} entering={FadeInDown.delay(60 + i * 40).duration(260)}>
+          <View key={s.key}>
             <HomeSection k={s.key} go={go} />
-          </Animated.View>
+          </View>
         ))}
     </View>
   );
@@ -93,9 +92,8 @@ function MemberCards() {
       style={{ marginHorizontal: -Spacing.three, marginTop: Spacing.four }}
       contentContainerStyle={{ gap: 12, paddingHorizontal: Spacing.three }}>
       {byMember.map(({ m, expense, income }, i) => (
-        <Animated.View
+        <View
           key={m.id}
-          entering={FadeInRight.delay(i * 50).duration(260)}
           style={[styles.memberCard, { width: cardWidth, backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 }]}>
           <Row style={{ gap: 12 }}>
             <View style={[styles.memberAvatar, { borderColor: t.primary, backgroundColor: t.primarySoft }]}>
@@ -117,7 +115,7 @@ function MemberCards() {
           <T v="small" muted style={{ marginTop: 4 }}>
             Gelir: {hidden ? '•••••' : formatMoney(income)}
           </T>
-        </Animated.View>
+        </View>
       ))}
     </ScrollView>
   );

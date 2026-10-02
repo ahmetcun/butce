@@ -12,9 +12,10 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import Animated, { FadeOutUp, LinearTransition, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { Icon, type GlyphName } from '@/components/icon';
+import { exit, Fast, layout } from '@/constants/motion';
 import { FontFamily, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { splitMoney } from '@/lib/format';
@@ -96,9 +97,8 @@ export function Row({ children, style }: { children: ReactNode; style?: StylePro
 /* ------------------------------ Dokunma ------------------------------ */
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const PRESS_SPRING = { damping: 15, stiffness: 300 };
 
-/** Basınca yaylanarak küçülen, titreşimli dokunma alanı. */
+/** Basınca hafifçe küçülen, titreşimli dokunma alanı (sekme yok, anında tepki). */
 export function Touch({
   style,
   onPress,
@@ -112,11 +112,11 @@ export function Touch({
     <AnimatedPressable
       {...props}
       onPressIn={(e) => {
-        scale.set(withSpring(pressScale, PRESS_SPRING));
+        scale.set(withTiming(pressScale, Fast));
         props.onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        scale.set(withSpring(1, PRESS_SPRING));
+        scale.set(withTiming(1, Fast));
         props.onPressOut?.(e);
       }}
       onPress={(e) => {
@@ -130,13 +130,13 @@ export function Touch({
 
 /* ------------------------------ Akbank parçaları ------------------------------ */
 
-/** Gri, büyük harfli, harf aralıklı bölüm etiketi. */
+/** Bölüm başlığı: kalın, normal yazım, sağda isteğe bağlı eylem. */
 export function SectionLabel({ children, action, onAction }: { children: string; action?: string; onAction?: () => void }) {
   const t = useTheme();
   return (
     <Row style={styles.sectionLabel}>
-      <T v="label" muted style={{ flex: 1 }}>
-        {children.toLocaleUpperCase('tr-TR')}
+      <T v="heading" style={{ flex: 1, fontFamily: FontFamily.semibold, fontSize: 18 }}>
+        {children}
       </T>
       {action ? (
         <Touch onPress={onAction} hitSlop={10}>
@@ -233,7 +233,7 @@ export function RoundAction({
  * Değer değişince eski değerden yenisine sayarak ilerler.
  * İlk açılışta saymaz (aynı anda birçok tutar sayınca JS thread'i tıkanıyordu).
  */
-function useCountUp(value: number, duration = 600) {
+function useCountUp(value: number, duration = 300) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
   useEffect(() => {
@@ -316,7 +316,7 @@ export function PromoBanner({
 }) {
   const t = useTheme();
   return (
-    <Animated.View exiting={FadeOutUp.duration(250)} layout={LinearTransition}>
+    <Animated.View exiting={exit} layout={layout}>
       <Touch onPress={onPress} pressScale={0.98} style={[styles.promo, { backgroundColor: t.promo }]}>
         <View style={[styles.promoIcon, { backgroundColor: t.surface, borderColor: t.promoText + '33' }]}>
           <Icon name={icon} size={22} color={t.promoText} />
@@ -345,7 +345,7 @@ export function ProgressBar({ value, color, height = 6 }: { value: number; color
   const barColor = color ?? (value >= 1 ? t.expense : value >= 0.8 ? t.warning : t.primary);
   const w = useSharedValue(0);
   useEffect(() => {
-    w.set(withTiming(pct, { duration: 700 }));
+    w.set(withTiming(pct, { duration: 300 }));
   }, [pct, w]);
   // Genişlik yerine scaleX: her karede yerleşim hesabı yapılmaz, UI thread'de akar
   const animated = useAnimatedStyle(() => ({ transform: [{ scaleX: w.get() }] }));

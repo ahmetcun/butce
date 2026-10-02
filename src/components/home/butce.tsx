@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton } from '@/components/form';
 import type { Bolum } from '@/components/home/genel';
 import { HeroSummary } from '@/components/home/hero';
 import { IconBubble, ListCard, ProgressBar, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { enter, layout } from '@/constants/motion';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { formatMoney, monthKey, monthLabel } from '@/lib/format';
@@ -32,10 +33,10 @@ export function ButceHero({ setEditing }: { go: (b: Bolum) => void; setEditing: 
       value={totalLimit - spent}
       pill={{ icon: 'chart', text: `${monthLabel(monthKey())} · ${limited.length} limit` }}
       actions={[
-        { icon: 'plusCircle', label: 'Limit\nkoy', onPress: () => setEditing(firstWithout?.category.id ?? rows[0]?.category.id ?? null) },
-        { icon: 'arrowUp', label: 'Gider\nekle', onPress: () => router.push('/ekle') },
-        { icon: 'list', label: 'Harca-\nmalar', onPress: () => router.push({ pathname: '/islemler', params: { tur: 'expense' } }) },
-        { icon: 'dots', label: 'Diğer\nişlemler', onPress: () => router.push('/islemler') },
+        { icon: 'plusCircle', label: 'Limit koy', onPress: () => setEditing(firstWithout?.category.id ?? rows[0]?.category.id ?? null) },
+        { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
+        { icon: 'list', label: 'Harcamalar', onPress: () => router.push({ pathname: '/islemler', params: { tur: 'expense' } }) },
+        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
       ]}
     />
   );
@@ -61,7 +62,7 @@ export function ButceBody({ editing, setEditing }: { editing: string | null; set
           return (
             <Animated.View
               key={c.id}
-              layout={LinearTransition}
+              layout={layout}
               style={[styles.row, i < rows.length - 1 && { borderBottomColor: t.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
               <Touch pressScale={0.98} onPress={() => open(c.id, c.limit)}>
                 <Row style={{ gap: 14 }}>
@@ -85,7 +86,7 @@ export function ButceBody({ editing, setEditing }: { editing: string | null; set
                 </Row>
               </Touch>
               {isEditing ? (
-                <Animated.View entering={FadeInDown.duration(200)}>
+                <Animated.View entering={enter}>
                   <Row style={{ gap: Spacing.two, marginTop: 12 }}>
                     <MoneyInput value={value} onChange={setValue} placeholder="Aylık limit (TL)" autoFocus />
                     <PillButton

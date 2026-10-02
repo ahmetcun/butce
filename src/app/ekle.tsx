@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
@@ -78,10 +78,10 @@ export default function AddTransaction() {
   const intText = formatMoney(Number(intPart) || 0, { decimals: false }).replace(' TL', '');
   const fracText = fracPart !== undefined ? ',' + fracPart : '';
 
-  // Her tuşa basışta tutar hafifçe zıplar
+  // Her tuşa basışta tutar çok hafif büyüyüp döner (sekme yok, 140 ms)
   const pop = useSharedValue(1);
   useEffect(() => {
-    if (raw) pop.set(withSequence(withTiming(1.06, { duration: 70 }), withSpring(1, { damping: 12, stiffness: 300 })));
+    if (raw) pop.set(withSequence(withTiming(1.03, { duration: 50 }), withTiming(1, { duration: 90 })));
   }, [raw, pop]);
   const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
 

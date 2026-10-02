@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, FadeInRight, ZoomIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { PillButton } from '@/components/form';
 import { Page, PageHeader } from '@/components/headers';
 import { Icon } from '@/components/icon';
 import { SortableList } from '@/components/sortable-list';
 import { Card, Chip, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { enter } from '@/constants/motion';
 import { Accents, FontFamily, Radius, Spacing, type AccentKey } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
@@ -26,11 +27,11 @@ export default function Profile() {
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   return (
-    <Page header={<PageHeader title="Profil" />}>
+    <Page header={<PageHeader title="Profil" subtitle="Ailen, görünüm ve bildirimler" />}>
       <FamilyStories />
 
       {/* Akbank "Aracım / Evim" kartları gibi kesik çizgili kart */}
-      <Animated.View entering={FadeInDown.delay(100).springify().damping(18)} style={[styles.dashed, { borderColor: t.border, backgroundColor: t.surface }]}>
+      <Animated.View entering={enter} style={[styles.dashed, { borderColor: t.border, backgroundColor: t.surface }]}>
         <T v="title" style={{ fontSize: 20 }}>
           Bilgilerin
         </T>
@@ -65,7 +66,7 @@ export default function Profile() {
               <Touch key={k} pressScale={0.88} onPress={() => updateSettings({ accent: k })} style={{ alignItems: 'center', gap: 6 }}>
                 <View style={[styles.swatch, { backgroundColor: Accents[k].primary, borderColor: sel ? t.text : 'transparent' }]}>
                   {sel ? (
-                    <Animated.View entering={ZoomIn.springify()}>
+                    <Animated.View entering={enter}>
                       <Icon name="check" color="#fff" size={18} />
                     </Animated.View>
                   ) : null}
@@ -128,7 +129,7 @@ export default function Profile() {
           />
         </Row>
         {settings.billReminders ? (
-          <Animated.View entering={FadeInDown.duration(250)} style={{ gap: Spacing.two }}>
+          <Animated.View entering={enter} style={{ gap: Spacing.two }}>
             <T v="small" muted>
               Ne zaman haber verelim?
             </T>
@@ -156,7 +157,7 @@ export default function Profile() {
 
       <SectionLabel>Ana sayfa düzeni</SectionLabel>
       <T v="small" muted style={{ marginTop: -6, marginBottom: 10 }}>
-        Genel bakıştaki bölümleri ≡ tutamacından tutup sürükleyerek sırala, anahtarla gizle.
+        Özet sayfasındaki bölümleri ≡ tutamacından tutup sürükleyerek sırala, anahtarla gizle.
       </T>
       <Card style={{ paddingVertical: Spacing.one }}>
         <SortableList
@@ -219,7 +220,7 @@ function FamilyStories() {
         {members.map((m, i) => {
           const isDefault = defaultMemberId === m.id;
           return (
-            <Animated.View key={m.id} entering={FadeInRight.delay(i * 60).springify().damping(18)}>
+            <Animated.View key={m.id} entering={enter}>
               <Touch
                 pressScale={0.92}
                 onPress={() => updateSettings({ defaultMemberId: m.id })}
@@ -258,7 +259,7 @@ function FamilyStories() {
       </T>
 
       {adding ? (
-        <Animated.View entering={FadeInDown.springify().damping(18)}>
+        <Animated.View entering={enter}>
           <Card style={{ gap: Spacing.two, marginTop: Spacing.three }}>
             <Row style={{ gap: 6, flexWrap: 'wrap' }}>
               {MEMBER_EMOJIS.map((e) => (

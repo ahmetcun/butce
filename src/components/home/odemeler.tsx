@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, LinearTransition, ZoomIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton, TextField } from '@/components/form';
 import { HeroSummary } from '@/components/home/hero';
 import { Icon } from '@/components/icon';
 import { Card, Chip, EmptyState, IconBubble, ListCard, PromoBanner, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { enter, layout } from '@/constants/motion';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
@@ -28,18 +29,18 @@ export function OdemelerHero({ setAdding }: { setAdding: (v: boolean) => void })
       value={remaining}
       pill={{ icon: 'calendar', text: `${bills.length} düzenli ödeme · ${unpaid.length} bekliyor` }}
       actions={[
-        { icon: 'plusCircle', label: 'Ödeme\nekle', onPress: () => setAdding(true) },
+        { icon: 'plusCircle', label: 'Ödeme ekle', onPress: () => setAdding(true) },
         {
           icon: 'bellOutline',
-          label: reminders ? 'Hatırlatma\naçık' : 'Hatırlatma\naç',
+          label: reminders ? 'Hatırlatıcı ✓' : 'Hatırlat',
           onPress: async () => {
             if (reminders) return router.push('/profil');
             if (await requestReminderPermission()) updateSettings({ billReminders: true });
             else router.push('/profil');
           },
         },
-        { icon: 'arrowUp', label: 'Gider\nekle', onPress: () => router.push('/ekle') },
-        { icon: 'dots', label: 'Diğer\nişlemler', onPress: () => router.push('/islemler') },
+        { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
+        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
       ]}
     />
   );
@@ -92,7 +93,7 @@ export function OdemelerBody({ adding, setAdding }: { adding: boolean; setAdding
       ) : null}
 
       {adding ? (
-        <Animated.View entering={FadeInDown.springify().damping(18)}>
+        <Animated.View entering={enter}>
           <SectionLabel action="Vazgeç" onAction={() => setAdding(false)}>
             Yeni düzenli ödeme
           </SectionLabel>
@@ -126,7 +127,7 @@ export function OdemelerBody({ adding, setAdding }: { adding: boolean; setAdding
             const paid = b.paidMonths.includes(month);
             const late = !paid && b.day < today;
             return (
-              <Animated.View key={b.id} layout={LinearTransition}>
+              <Animated.View key={b.id} layout={layout}>
                 <Touch
                   pressScale={0.98}
                   onPress={() => toggleBillPaid(b.id)}
@@ -146,7 +147,7 @@ export function OdemelerBody({ adding, setAdding }: { adding: boolean; setAdding
                   </T>
                   <View style={[styles.check, { borderColor: paid ? t.income : t.border, backgroundColor: paid ? t.income : 'transparent' }]}>
                     {paid ? (
-                      <Animated.View entering={ZoomIn.springify()}>
+                      <Animated.View entering={enter}>
                         <Icon name="check" color="#fff" size={15} />
                       </Animated.View>
                     ) : null}

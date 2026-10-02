@@ -1,146 +1,301 @@
-import type { IconProps, IconWeight } from 'phosphor-react-native';
-import type { ComponentType } from 'react';
-
-import { ArrowDownLeftIcon } from 'phosphor-react-native/src/icons/ArrowDownLeft';
-import { ArrowUpRightIcon } from 'phosphor-react-native/src/icons/ArrowUpRight';
-import { ArrowsClockwiseIcon } from 'phosphor-react-native/src/icons/ArrowsClockwise';
-import { ArrowsDownUpIcon } from 'phosphor-react-native/src/icons/ArrowsDownUp';
-import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
-import { BabyIcon } from 'phosphor-react-native/src/icons/Baby';
-import { BackspaceIcon } from 'phosphor-react-native/src/icons/Backspace';
-import { BellIcon } from 'phosphor-react-native/src/icons/Bell';
-import { BellRingingIcon } from 'phosphor-react-native/src/icons/BellRinging';
-import { BuildingsIcon } from 'phosphor-react-native/src/icons/Buildings';
-import { CalendarBlankIcon } from 'phosphor-react-native/src/icons/CalendarBlank';
-import { CarIcon } from 'phosphor-react-native/src/icons/Car';
-import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
-import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
-import { ChartPieSliceIcon } from 'phosphor-react-native/src/icons/ChartPieSlice';
-import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
-import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
-import { DotsSixVerticalIcon } from 'phosphor-react-native/src/icons/DotsSixVertical';
-import { DotsThreeIcon } from 'phosphor-react-native/src/icons/DotsThree';
-import { DotsThreeCircleIcon } from 'phosphor-react-native/src/icons/DotsThreeCircle';
-import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
-import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
-import { FirstAidKitIcon } from 'phosphor-react-native/src/icons/FirstAidKit';
-import { ForkKnifeIcon } from 'phosphor-react-native/src/icons/ForkKnife';
-import { GameControllerIcon } from 'phosphor-react-native/src/icons/GameController';
-import { GearIcon } from 'phosphor-react-native/src/icons/Gear';
-import { GiftIcon } from 'phosphor-react-native/src/icons/Gift';
-import { GraduationCapIcon } from 'phosphor-react-native/src/icons/GraduationCap';
-import { HeartIcon } from 'phosphor-react-native/src/icons/Heart';
-import { HouseIcon } from 'phosphor-react-native/src/icons/House';
-import { HouseLineIcon } from 'phosphor-react-native/src/icons/HouseLine';
-import { InvoiceIcon } from 'phosphor-react-native/src/icons/Invoice';
-import { LightningIcon } from 'phosphor-react-native/src/icons/Lightning';
-import { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
-import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
-import { MoonIcon } from 'phosphor-react-native/src/icons/Moon';
-import { PaletteIcon } from 'phosphor-react-native/src/icons/Palette';
-import { PawPrintIcon } from 'phosphor-react-native/src/icons/PawPrint';
-import { PiggyBankIcon } from 'phosphor-react-native/src/icons/PiggyBank';
-import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
-import { PlusCircleIcon } from 'phosphor-react-native/src/icons/PlusCircle';
-import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
-import { ShoppingCartIcon } from 'phosphor-react-native/src/icons/ShoppingCart';
-import { SlidersIcon } from 'phosphor-react-native/src/icons/Sliders';
-import { SparkleIcon } from 'phosphor-react-native/src/icons/Sparkle';
-import { TShirtIcon } from 'phosphor-react-native/src/icons/TShirt';
-import { TargetIcon } from 'phosphor-react-native/src/icons/Target';
-import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
-import { UserIcon } from 'phosphor-react-native/src/icons/User';
-import { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
-import { UsersThreeIcon } from 'phosphor-react-native/src/icons/UsersThree';
-import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
-import { XIcon } from 'phosphor-react-native/src/icons/X';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 /**
- * Uygulamadaki tüm ikonlar tek yerde: Phosphor, çift tonlu (duotone).
- * Paketin tamamı değil, yalnızca kullanılan ikonlar içe aktarılır.
+ * Uygulamaya özel çizilmiş ikon seti.
+ * 24×24 ızgara, 1.8 kalınlık, yuvarlak uçlar. "f" ve "fc" katmanları
+ * ikonun ikinci tonudur (aynı rengin yarı saydamı).
  */
+type Drawing = {
+  /** Çizgi yolları */
+  s?: string[];
+  /** Çizgi daireler [cx, cy, r] */
+  c?: [number, number, number][];
+  /** İkinci ton (dolgu) yolları */
+  f?: string[];
+  /** İkinci ton (dolgu) daireler */
+  fc?: [number, number, number][];
+  /** Tam dolu küçük noktalar */
+  d?: [number, number, number][];
+};
+
+const plusCircle: Drawing = {
+  fc: [[12, 12, 8.5]],
+  c: [[12, 12, 8.5]],
+  s: ['M12 8.5v7', 'M8.5 12h7'],
+};
+
 export const Glyphs = {
-  home: HouseIcon,
-  list: ReceiptIcon,
-  plus: PlusIcon,
-  chart: ChartPieSliceIcon,
-  person: UserIcon,
-  bell: BellIcon,
-  gear: GearIcon,
-  close: XIcon,
-  check: CheckIcon,
-  backspace: BackspaceIcon,
-  chevronRight: CaretRightIcon,
-  eye: EyeIcon,
-  eyeOff: EyeSlashIcon,
-  trash: TrashIcon,
-  repeat: ArrowsClockwiseIcon,
-  arrowUp: ArrowUpRightIcon,
-  arrowDown: ArrowDownLeftIcon,
-  calendar: CalendarBlankIcon,
-  target: TargetIcon,
-  bolt: LightningIcon,
-  palette: PaletteIcon,
-  family: UsersThreeIcon,
-  sliders: SlidersIcon,
-  moon: MoonIcon,
-  arrowUpDown: ArrowsDownUpIcon,
-  grip: DotsSixVerticalIcon,
-  search: MagnifyingGlassIcon,
-  homeOutline: HouseIcon,
-  swap: ArrowsLeftRightIcon,
-  plusCircle: PlusCircleIcon,
-  heart: HeartIcon,
-  personOutline: UserCircleIcon,
-  dots: DotsThreeIcon,
-  chevronDown: CaretDownIcon,
-  wallet: WalletIcon,
-  sparkles: SparkleIcon,
-  bellOutline: BellRingingIcon,
-  piggy: PiggyBankIcon,
-  receipt: ReceiptIcon,
-  cart: ShoppingCartIcon,
-  bill: InvoiceIcon,
-  house: HouseLineIcon,
-  car: CarIcon,
-  food: ForkKnifeIcon,
-  health: FirstAidKitIcon,
-  school: GraduationCapIcon,
-  clothes: TShirtIcon,
-  child: BabyIcon,
-  fun: GameControllerIcon,
-  card: CreditCardIcon,
-  more: DotsThreeCircleIcon,
-  salary: MoneyIcon,
-  extra: PlusCircleIcon,
-  building: BuildingsIcon,
-  gift: GiftIcon,
-  pet: PawPrintIcon,
-} satisfies Record<string, ComponentType<IconProps>>;
+  // ---------- Gezinme ----------
+  home: {
+    f: ['M5.5 10.2 12 4.6l6.5 5.6v8.3c0 .8-.7 1.5-1.5 1.5h-2.5v-4.5a1.5 1.5 0 0 0-1.5-1.5h-2a1.5 1.5 0 0 0-1.5 1.5V20H7c-.8 0-1.5-.7-1.5-1.5z'],
+    s: [
+      'M3.5 11 12 3.75 20.5 11',
+      'M5.5 9.5v9A1.5 1.5 0 0 0 7 20h10a1.5 1.5 0 0 0 1.5-1.5v-9',
+      'M9.5 20v-4.5a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5V20',
+    ],
+  },
+  list: {
+    f: ['M6 3.5h12a1 1 0 0 1 1 1v15.6a.4.4 0 0 1-.63.33L16.5 19.2l-2.25 1.5L12 19.2l-2.25 1.5-2.25-1.5-1.87 1.23A.4.4 0 0 1 5 20.1V4.5a1 1 0 0 1 1-1Z'],
+    s: [
+      'M6 3.5h12a1 1 0 0 1 1 1v15.6a.4.4 0 0 1-.63.33L16.5 19.2l-2.25 1.5L12 19.2l-2.25 1.5-2.25-1.5-1.87 1.23A.4.4 0 0 1 5 20.1V4.5a1 1 0 0 1 1-1Z',
+      'M8.5 8h7',
+      'M8.5 11.5h7',
+      'M8.5 15h4',
+    ],
+  },
+  swap: { s: ['M4 8h15', 'M15.5 4.5 19 8l-3.5 3.5', 'M20 16H5', 'M8.5 12.5 5 16l3.5 3.5'] },
+  plusCircle,
+  person: {
+    fc: [[12, 8, 3.75]],
+    c: [[12, 8, 3.75]],
+    s: ['M4.75 20c.8-3.5 3.6-5.5 7.25-5.5s6.45 2 7.25 5.5'],
+  },
+  family: {
+    fc: [[12, 8, 3]],
+    c: [
+      [12, 8, 3],
+      [5.5, 9.5, 2.25],
+      [18.5, 9.5, 2.25],
+    ],
+    s: ['M6.5 19c.6-2.9 2.8-4.5 5.5-4.5s4.9 1.6 5.5 4.5', 'M2.5 17.5c.3-1.9 1.5-3.1 3.2-3.4', 'M21.5 17.5c-.3-1.9-1.5-3.1-3.2-3.4'],
+  },
+  search: { fc: [[10.5, 10.5, 6.5]], c: [[10.5, 10.5, 6.5]], s: ['M15.5 15.5 20 20'] },
+  bellOutline: {
+    f: ['M6.5 16v-5a5.5 5.5 0 0 1 11 0v5l1.5 2h-14z'],
+    s: ['M6.5 16v-5a5.5 5.5 0 0 1 11 0v5l1.5 2h-14z', 'M10 20.75h4', 'M3.5 9a8 8 0 0 1 2.3-4.3', 'M20.5 9a8 8 0 0 0-2.3-4.3'],
+  },
+
+  // ---------- Arayüz işaretleri ----------
+  plus: { s: ['M12 5v14', 'M5 12h14'] },
+  close: { s: ['M6.5 6.5l11 11', 'M17.5 6.5l-11 11'] },
+  check: { s: ['M5 12.5l4.5 4.5L19 7.5'] },
+  chevronRight: { s: ['M9.5 5.5 16 12l-6.5 6.5'] },
+  chevronDown: { s: ['M5.5 9.5 12 16l6.5-6.5'] },
+  arrowUp: { s: ['M7 17 17 7', 'M8.5 7H17v8.5'] },
+  arrowDown: { s: ['M17 7 7 17', 'M15.5 17H7V8.5'] },
+  dots: {
+    d: [
+      [6, 12, 1.6],
+      [12, 12, 1.6],
+      [18, 12, 1.6],
+    ],
+  },
+  grip: {
+    d: [
+      [9, 6, 1.5],
+      [15, 6, 1.5],
+      [9, 12, 1.5],
+      [15, 12, 1.5],
+      [9, 18, 1.5],
+      [15, 18, 1.5],
+    ],
+  },
+  backspace: {
+    f: ['M8.4 5H19a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 19 19H8.4a1.5 1.5 0 0 1-1.1-.5L3 12l4.3-6.5a1.5 1.5 0 0 1 1.1-.5Z'],
+    s: ['M8.4 5H19a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 19 19H8.4a1.5 1.5 0 0 1-1.1-.5L3 12l4.3-6.5a1.5 1.5 0 0 1 1.1-.5Z', 'M11 9.5l5 5', 'M16 9.5l-5 5'],
+  },
+  trash: {
+    f: ['M6.5 7h11l-.85 12.1a1.5 1.5 0 0 1-1.5 1.4h-6.3a1.5 1.5 0 0 1-1.5-1.4z'],
+    s: [
+      'M6.5 7h11l-.85 12.1a1.5 1.5 0 0 1-1.5 1.4h-6.3a1.5 1.5 0 0 1-1.5-1.4z',
+      'M4 7h16',
+      'M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2',
+      'M10.25 11v5.5',
+      'M13.75 11v5.5',
+    ],
+  },
+  sparkles: {
+    f: ['M10 3.5l1.6 4.4a2 2 0 0 0 1.2 1.2l4.4 1.6-4.4 1.6a2 2 0 0 0-1.2 1.2L10 17.9l-1.6-4.4a2 2 0 0 0-1.2-1.2L2.8 10.7l4.4-1.6a2 2 0 0 0 1.2-1.2z'],
+    s: [
+      'M10 3.5l1.6 4.4a2 2 0 0 0 1.2 1.2l4.4 1.6-4.4 1.6a2 2 0 0 0-1.2 1.2L10 17.9l-1.6-4.4a2 2 0 0 0-1.2-1.2L2.8 10.7l4.4-1.6a2 2 0 0 0 1.2-1.2z',
+      'M18.5 14.25l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
+    ],
+  },
+
+  // ---------- Bütçe kavramları ----------
+  chart: {
+    f: ['M13.5 3.1a7.4 7.4 0 0 1 7.4 7.4h-7.4z'],
+    s: ['M10.5 5.1A8.4 8.4 0 1 0 18.9 13.5H10.5z', 'M13.5 3.1a7.4 7.4 0 0 1 7.4 7.4h-7.4z'],
+  },
+  calendar: {
+    f: ['M5.5 5h13A1.5 1.5 0 0 1 20 6.5v3H4v-3A1.5 1.5 0 0 1 5.5 5z'],
+    s: ['M5.5 5h13A1.5 1.5 0 0 1 20 6.5v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5z', 'M4 9.5h16', 'M8 3v4', 'M16 3v4'],
+    d: [
+      [8.5, 13.25, 1],
+      [12, 13.25, 1],
+      [15.5, 13.25, 1],
+      [8.5, 16.75, 1],
+      [12, 16.75, 1],
+    ],
+  },
+  target: {
+    fc: [[12, 12, 5]],
+    c: [
+      [12, 12, 8.5],
+      [12, 12, 5],
+    ],
+    d: [[12, 12, 1.75]],
+  },
+  piggy: {
+    f: ['M5 7c0-1.4 3.1-2.5 7-2.5S19 5.6 19 7s-3.1 2.5-7 2.5S5 8.4 5 7z'],
+    s: [
+      'M5 7c0-1.4 3.1-2.5 7-2.5S19 5.6 19 7s-3.1 2.5-7 2.5S5 8.4 5 7z',
+      'M5 7v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V7',
+      'M5 12v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5',
+    ],
+  },
+  bolt: {
+    f: ['M13.5 3 5.5 13.5h6l-1 7.5 8-10.5h-6z'],
+    s: ['M13.5 3 5.5 13.5h6l-1 7.5 8-10.5h-6z'],
+  },
+
+  // ---------- Kategoriler ----------
+  cart: {
+    f: ['M6.1 8H20l-1.4 6.75a1.5 1.5 0 0 1-1.46 1.15H8.77a1.5 1.5 0 0 1-1.47-1.2z'],
+    s: ['M3 4.5h2.2l2.1 10.2a1.5 1.5 0 0 0 1.47 1.2h8.36a1.5 1.5 0 0 0 1.46-1.15L20 8H6'],
+    c: [
+      [9.5, 19.5, 1.25],
+      [16.5, 19.5, 1.25],
+    ],
+  },
+  bill: {
+    f: ['M6.5 3.5h7.5l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5z'],
+    s: ['M6.5 3.5h7.5l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5z', 'M14 3.5V8h4.5', 'M8.5 12.5h7', 'M8.5 16h4.5'],
+  },
+  house: {
+    f: ['M5 9.6 12 4l7 5.6v9.9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5z'],
+    s: ['M3 11.2 12 4l9 7.2', 'M5 9.6v9.9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V9.6', 'M10 20v-5h4v5', 'M16 5.5v2'],
+  },
+  car: {
+    f: ['M4 12.5 5.6 8a2 2 0 0 1 1.9-1.4h9a2 2 0 0 1 1.9 1.4l1.6 4.5v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z'],
+    s: ['M4 12.5 5.6 8a2 2 0 0 1 1.9-1.4h9a2 2 0 0 1 1.9 1.4l1.6 4.5v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z', 'M4 12.5h16', 'M6.5 17.5v2', 'M17.5 17.5v2'],
+    d: [
+      [7.5, 14.75, 1],
+      [16.5, 14.75, 1],
+    ],
+  },
+  food: {
+    f: ['M16.5 3.5c-1.9.9-3 3-3 5.6V13h3z'],
+    s: ['M7 3.5V9a2 2 0 0 0 4 0V3.5', 'M9 11v9.5', 'M16.5 20.5v-17c-1.9.9-3 3-3 5.6V13h3'],
+  },
+  health: {
+    f: ['M5 7h14a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 19 20H5a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 5 7z'],
+    s: ['M5 7h14a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 19 20H5a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 5 7z', 'M9 7V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V7', 'M12 10.5v6', 'M9 13.5h6'],
+  },
+  school: {
+    f: ['M12 4.5 2.5 9 12 13.5 21.5 9z'],
+    s: ['M12 4.5 2.5 9 12 13.5 21.5 9z', 'M6.5 11v4.5c1.5 1.6 3.3 2.5 5.5 2.5s4-.9 5.5-2.5V11', 'M21.5 9v5'],
+  },
+  clothes: {
+    f: ['M8.5 4 4 6.5l-1.25 4 3 1.25.75-1.25v9a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-9l.75 1.25 3-1.25L20 6.5 15.5 4c-.4 1.4-1.8 2.5-3.5 2.5S8.9 5.4 8.5 4z'],
+    s: ['M8.5 4 4 6.5l-1.25 4 3 1.25.75-1.25v9a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-9l.75 1.25 3-1.25L20 6.5 15.5 4c-.4 1.4-1.8 2.5-3.5 2.5S8.9 5.4 8.5 4z'],
+  },
+  child: {
+    fc: [[12, 12.5, 8]],
+    c: [[12, 12.5, 8]],
+    s: ['M9.5 15.25c.7.6 1.5.9 2.5.9s1.8-.3 2.5-.9', 'M12 4.5c-1.2 0-2 .8-2 1.8 0 .8.6 1.4 1.4 1.4'],
+    d: [
+      [9.25, 11.5, 1],
+      [14.75, 11.5, 1],
+    ],
+  },
+  fun: {
+    f: ['M7.5 7h9a4.5 4.5 0 0 1 4.4 3.6l.9 4.6a2.3 2.3 0 0 1-4 1.9L16 15H8l-1.8 2.1a2.3 2.3 0 0 1-4-1.9l.9-4.6A4.5 4.5 0 0 1 7.5 7z'],
+    s: ['M7.5 7h9a4.5 4.5 0 0 1 4.4 3.6l.9 4.6a2.3 2.3 0 0 1-4 1.9L16 15H8l-1.8 2.1a2.3 2.3 0 0 1-4-1.9l.9-4.6A4.5 4.5 0 0 1 7.5 7z', 'M7.5 9.75v3', 'M6 11.25h3'],
+    d: [
+      [15.5, 10.25, 1],
+      [17.5, 12.25, 1],
+    ],
+  },
+  card: {
+    f: ['M5 5.5h14A1.5 1.5 0 0 1 20.5 7v3h-17V7A1.5 1.5 0 0 1 5 5.5z'],
+    s: ['M5 5.5h14A1.5 1.5 0 0 1 20.5 7v10a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 17V7A1.5 1.5 0 0 1 5 5.5z', 'M3.5 10h17', 'M7 14.5h3'],
+  },
+  more: {
+    fc: [[12, 12, 8.5]],
+    c: [[12, 12, 8.5]],
+    d: [
+      [8.25, 12, 1.1],
+      [12, 12, 1.1],
+      [15.75, 12, 1.1],
+    ],
+  },
+  salary: {
+    fc: [[12, 12, 2.5]],
+    s: [
+      'M4 6.5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z',
+      'M3 9.5a3 3 0 0 0 3-3',
+      'M18 6.5a3 3 0 0 0 3 3',
+      'M21 14.5a3 3 0 0 0-3 3',
+      'M6 17.5a3 3 0 0 0-3-3',
+    ],
+    c: [[12, 12, 2.5]],
+  },
+  extra: plusCircle,
+  building: {
+    f: ['M5 4.5h9a1 1 0 0 1 1 1V20H4V5.5a1 1 0 0 1 1-1z'],
+    s: ['M5 4.5h9a1 1 0 0 1 1 1V20H4V5.5a1 1 0 0 1 1-1z', 'M15 9.5h4a1 1 0 0 1 1 1V20', 'M2.5 20h19'],
+    d: [
+      [7.5, 8, 0.9],
+      [11.5, 8, 0.9],
+      [7.5, 11.5, 0.9],
+      [11.5, 11.5, 0.9],
+      [7.5, 15, 0.9],
+      [11.5, 15, 0.9],
+      [17.5, 13, 0.9],
+      [17.5, 16.5, 0.9],
+    ],
+  },
+  gift: {
+    f: ['M4.5 11.5h15V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19z'],
+    s: [
+      'M4 8h16a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V8.5A.5.5 0 0 1 4 8z',
+      'M4.5 11.5V19A1.5 1.5 0 0 0 6 20.5h12a1.5 1.5 0 0 0 1.5-1.5v-7.5',
+      'M12 8v12.5',
+      'M12 8c-1-2.5-2.6-3.8-4-3.5-1.2.3-1.3 2 0 2.8.9.6 2.5.7 4 .7',
+      'M12 8c1-2.5 2.6-3.8 4-3.5 1.2.3 1.3 2 0 2.8-.9.6-2.5.7-4 .7',
+    ],
+  },
+} satisfies Record<string, Drawing>;
 
 export type GlyphName = keyof typeof Glyphs;
 
-/** Dolgu alanı olmayan küçük arayüz işaretleri: çift ton yerine kalın çizgi daha okunaklı */
-const LINE_ONLY = new Set<GlyphName>(['arrowDown', 'arrowUp', 'arrowUpDown', 'backspace', 'check', 'chevronDown', 'chevronRight', 'close', 'dots', 'grip', 'plus', 'swap']);
+/**
+ * duotone: çizgi + yarı saydam ikinci ton (varsayılan)
+ * bold: daha kalın çizgi, daha belirgin ikinci ton (seçili durumlar için)
+ * line: yalnızca çizgi
+ */
+export type IconWeight = 'duotone' | 'bold' | 'line';
 
 export function Icon({
   name,
   size = 22,
   color,
-  weight,
+  weight = 'duotone',
 }: {
   name: GlyphName;
   size?: number;
   color: string;
   weight?: IconWeight;
 }) {
-  const Component = Glyphs[name];
+  const g: Drawing = Glyphs[name];
+  const stroke = weight === 'bold' ? 2.1 : 1.8;
+  const tone = weight === 'line' ? 0 : weight === 'bold' ? 0.35 : 0.2;
+
   return (
-    <Component
-      size={size}
-      color={color}
-      weight={weight ?? (LINE_ONLY.has(name) ? 'bold' : 'duotone')}
-      duotoneOpacity={0.28}
-    />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {tone > 0 && g.f?.map((p, i) => <Path key={`f${i}`} d={p} fill={color} fillOpacity={tone} />)}
+      {tone > 0 &&
+        g.fc?.map(([cx, cy, r], i) => <Circle key={`fc${i}`} cx={cx} cy={cy} r={r} fill={color} fillOpacity={tone} />)}
+      {g.s?.map((p, i) => (
+        <Path key={`s${i}`} d={p} stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" />
+      ))}
+      {g.c?.map(([cx, cy, r], i) => (
+        <Circle key={`c${i}`} cx={cx} cy={cy} r={r} stroke={color} strokeWidth={stroke} />
+      ))}
+      {g.d?.map(([cx, cy, r], i) => (
+        <Circle key={`d${i}`} cx={cx} cy={cy} r={weight === 'bold' ? r * 1.1 : r} fill={color} />
+      ))}
+    </Svg>
   );
 }

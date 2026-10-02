@@ -1,6 +1,6 @@
 # Aile Bütçem
 
-Aile bütçesi takip uygulaması. Akbank Mobil'in düzeni temel alındı: renkli özet alanı, hap sekmeler, sınıra binen arama çubuğu, başlıklı beyaz kartlar ve sade alt bar. Renkler farklı ve kullanıcı tarafından seçilebilir.
+Aile bütçesi takip uygulaması. Bankacılık uygulamalarının alışılmış düzeninden (Akbank Mobil) yola çıkıldı, ama kendine ait modern bir görünümü var: degradeli renkli özet alanı, segment kontrol, işlem kartları, yüzen alt bar ve uygulamaya özel çizilmiş ikonlar. Renkler kullanıcı tarafından seçilebilir.
 
 ## Özellikler
 
@@ -12,8 +12,8 @@ Aile bütçesi takip uygulaması. Akbank Mobil'in düzeni temel alındı: renkli
 - **Ödeme hatırlatmaları:** Faturanın son gününden 1-5 gün önce ve son gün, seçilen saatte bildirim gelir. Ödendi işaretlenince o ayın hatırlatması iptal olur.
 - **Birikim hedefleri:** Hedef tutarı ve ilerleme gösterilir, hedefe hızlıca para eklenebilir.
 - **Kişiselleştirme:** 5 renk teması, açık/koyu mod, ana sayfa bölümlerini sürükleyerek sıralama ve gizleme, tutarları gizleme.
-- **Ana sayfa bölümleri:** Genel bakış, Bütçe, Ödemeler ve Hedefler. Her bölümün kendi rengi var ve geçişte renk yumuşakça değişir.
-- **Animasyonlar:** Sayarak artan tutarlar, sırayla süzülen kartlar, kayan sekme vurgusu, yaylanan butonlar, zıplayan alt bar ikonları.
+- **Ana sayfa bölümleri:** Özet, Bütçe, Ödemeler ve Hedefler. Her bölümün kendi rengi var ve geçişte renk yumuşakça değişir.
+- **Animasyonlar:** Kısa ve sekmeyen geçişler (en fazla 200 ms, gecikme yok). Ayarlar tek yerde: `src/constants/motion.ts`.
 - **Arama:** İşlemler not, kategori ve kişi adına göre aranabilir.
 
 ## Teknolojiler
@@ -25,7 +25,8 @@ Aile bütçesi takip uygulaması. Akbank Mobil'in düzeni temel alındı: renkli
 | Gezinme | Expo Router (dosya tabanlı; alt sekmeler + modal) |
 | Durum yönetimi | Zustand |
 | Kalıcı veri | `expo-sqlite/kv-store` (telefon), `localStorage` (web) |
-| İkonlar | Phosphor, çift tonlu (`phosphor-react-native` + `react-native-svg`) |
+| İkonlar | Uygulamaya özel çizilmiş, çift tonlu SVG ikonlar (`react-native-svg`) |
+| Degrade | `expo-linear-gradient` |
 | Dokunsal geri bildirim | `expo-haptics` |
 | Animasyon ve jestler | `react-native-reanimated`, `react-native-gesture-handler` |
 | Bildirimler | `expo-notifications` (yerel, planlı) |

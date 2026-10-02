@@ -1,11 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type GlyphName } from '@/components/icon';
 import { Row, T, Touch } from '@/components/ui';
+import { enter } from '@/constants/motion';
 import { Accents, FontFamily, MaxContentWidth, Radius, Spacing, type AccentKey } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { greeting } from '@/lib/format';
@@ -45,7 +46,7 @@ export default function Welcome() {
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.wrap, { paddingTop: insets.top + Spacing.five }]}>
-          <Animated.View entering={FadeInDown.springify().damping(16)} style={[styles.avatar, { backgroundColor: t.surfaceAlt }]}>
+          <Animated.View entering={enter} style={[styles.avatar, { backgroundColor: t.surfaceAlt }]}>
             <T style={{ fontSize: 32, fontFamily: FontFamily.semibold }} color={t.primary}>
               {initials}
             </T>
@@ -54,14 +55,14 @@ export default function Welcome() {
             </View>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(80).springify().damping(16)}>
+          <Animated.View entering={enter}>
             <T style={styles.hello}>{greeting()}</T>
             <T style={styles.hello} numberOfLines={1} adjustsFontSizeToFit>
               {userName.trim() || 'Aile Bütçem'}
             </T>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(160).springify().damping(16)} style={{ width: '100%', gap: 10, marginTop: Spacing.four }}>
+          <Animated.View entering={enter} style={{ width: '100%', gap: 10, marginTop: Spacing.four }}>
             <TextInput
               value={userName}
               onChangeText={setUserName}
@@ -91,7 +92,7 @@ export default function Welcome() {
             </Row>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(240).springify().damping(16)} style={{ width: '100%', alignItems: 'center', marginTop: Spacing.four }}>
+          <Animated.View entering={enter} style={{ width: '100%', alignItems: 'center', marginTop: Spacing.four }}>
             <Touch onPress={() => start(true)} hitSlop={8}>
               <T v="bodyBold" color={t.primary} style={{ fontSize: 16 }}>
                 Örnek verilerle göz at
@@ -107,7 +108,7 @@ export default function Welcome() {
 
         {/* Renkli alt panel: Akbank'taki FAST / QR / Fiyat ve Oranlar düzeni */}
         <Animated.View
-          entering={FadeInUp.delay(300).springify().damping(18)}
+          entering={enter}
           style={[styles.panel, { backgroundColor: t.primary, paddingBottom: insets.bottom + Spacing.three }]}>
           <Row style={{ alignItems: 'flex-start', width: '100%', maxWidth: MaxContentWidth }}>
             {FEATURES.map((f) => (

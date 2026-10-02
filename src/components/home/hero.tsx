@@ -1,15 +1,16 @@
 import { StyleSheet, View } from 'react-native';
 
+import { useHeroColor } from '@/components/headers';
 import { Icon, type GlyphName } from '@/components/icon';
-import { Amount, RoundAction, Row, T, Touch } from '@/components/ui';
+import { Amount, Row, T, Touch } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useBudget } from '@/store/budget';
 
 export type HeroAction = { icon: GlyphName; label: string; onPress: () => void };
 
 /**
- * Renkli alanın içi (Akbank "TOPLAM BAKİYE" düzeni): ortalanmış etiket,
- * büyük tutar, açılır hap ve 4 yuvarlak işlem butonu.
+ * Renkli alanın içi: küçük etiket, büyük tutar, bilgi hapı ve
+ * 4 işlem kartı (ilki beyaz ve öne çıkan, diğerleri buzlu cam).
  */
 export function HeroSummary({
   label,
@@ -28,34 +29,49 @@ export function HeroSummary({
   const updateSettings = useBudget((s) => s.updateSettings);
 
   return (
-    <View style={{ alignItems: 'center' }}>
-      <T v="label" color="rgba(255,255,255,0.92)" style={{ marginTop: Spacing.two }}>
-        {label.toLocaleUpperCase('tr-TR')}
-      </T>
-      <Touch
-        onPress={() => updateSettings({ hideBalance: !hidden })}
-        pressScale={0.97}
-        style={{ marginTop: 6 }}
-        accessibilityLabel={hidden ? 'Tutarı göster' : 'Tutarı gizle'}>
-        <Amount value={value} color="#fff" hidden={hidden} />
-      </Touch>
-      {pill ? (
-        <Touch onPress={onPill} disabled={!onPill} style={styles.pill}>
-          <View style={styles.pillIcon}>
-            <Icon name={pill.icon} size={14} color="#fff" />
-          </View>
-          <T v="bodyBold" color="#fff" style={{ fontSize: 16 }}>
-            {pill.text}
-          </T>
-          {onPill ? <Icon name="chevronDown" size={16} color="#fff" /> : null}
+    <View>
+      <View style={{ alignItems: 'center', marginTop: Spacing.four }}>
+        <T v="body" color="rgba(255,255,255,0.85)">
+          {label}
+        </T>
+        <Touch
+          onPress={() => updateSettings({ hideBalance: !hidden })}
+          pressScale={0.98}
+          style={{ marginTop: 2 }}
+          accessibilityLabel={hidden ? 'Tutarı göster' : 'Tutarı gizle'}>
+          <Amount value={value} color="#fff" hidden={hidden} />
         </Touch>
-      ) : null}
-      <Row style={{ marginTop: Spacing.four, alignItems: 'flex-start', alignSelf: 'stretch' }}>
-        {actions.map((a) => (
-          <RoundAction key={a.label} icon={a.icon} label={a.label} onPress={a.onPress} onColor />
+        {pill ? (
+          <Touch onPress={onPill} disabled={!onPill} style={styles.pill}>
+            <Icon name={pill.icon} size={15} color="#fff" weight="line" />
+            <T v="small" color="#fff" style={{ fontSize: 13.5 }}>
+              {pill.text}
+            </T>
+            {onPill ? <Icon name="chevronDown" size={13} color="#fff" /> : null}
+          </Touch>
+        ) : null}
+      </View>
+
+      <Row style={{ marginTop: Spacing.four, gap: 10 }}>
+        {actions.map((a, i) => (
+          <ActionTile key={a.label} {...a} primary={i === 0} />
         ))}
       </Row>
     </View>
+  );
+}
+
+function ActionTile({ icon, label, onPress, primary }: HeroAction & { primary?: boolean }) {
+  const color = useHeroColor();
+  return (
+    <Touch onPress={onPress} pressScale={0.95} style={[styles.tile, primary ? styles.tilePrimary : styles.tileGlass]} accessibilityLabel={label}>
+      <View style={[styles.tileIcon, { backgroundColor: primary ? color : '#fff' }]}>
+        <Icon name={icon} size={20} color={primary ? '#fff' : color} />
+      </View>
+      <T v="caption" color={primary ? color : '#fff'} style={{ fontSize: 12, textAlign: 'center' }} numberOfLines={1} adjustsFontSizeToFit>
+        {label}
+      </T>
+    </Touch>
   );
 }
 
@@ -63,20 +79,39 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginTop: Spacing.three,
-    paddingLeft: 8,
-    paddingRight: 16,
-    paddingVertical: 8,
+    gap: 6,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.16)',
   },
-  pillIcon: {
-    width: 24,
-    height: 24,
+  tile: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 8,
+    paddingTop: 12,
+    paddingBottom: 10,
+    paddingHorizontal: 4,
+    borderRadius: 20,
+  },
+  tilePrimary: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  tileGlass: {
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.28)',
+  },
+  tileIcon: {
+    width: 38,
+    height: 38,
     borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },

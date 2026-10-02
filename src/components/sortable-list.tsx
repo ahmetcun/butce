@@ -5,16 +5,16 @@ import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { Icon } from '@/components/icon';
 import { tap } from '@/components/ui';
+import { Base, Fast } from '@/constants/motion';
 import { useTheme } from '@/hooks/use-theme';
 
-const SPRING = { damping: 20, stiffness: 260 };
 
 type Positions = Record<string, number>;
 
@@ -91,7 +91,7 @@ function SortableItem({
   useAnimatedReaction(
     () => positions.get()[id],
     (cur, prev) => {
-      if (cur !== prev && !dragging.get()) top.set(withSpring(cur * rowHeight, SPRING));
+      if (cur !== prev && !dragging.get()) top.set(withTiming(cur * rowHeight, Base));
     },
   );
 
@@ -120,7 +120,7 @@ function SortableItem({
     .onFinalize(() => {
       if (!dragging.get()) return;
       dragging.set(false);
-      top.set(withSpring(positions.get()[id] * rowHeight, SPRING));
+      top.set(withTiming(positions.get()[id] * rowHeight, Base));
       const ordered = Object.keys(positions.get()).sort((a, b) => positions.get()[a] - positions.get()[b]);
       scheduleOnRN(onDrop, ordered);
     });
@@ -132,8 +132,8 @@ function SortableItem({
     height: rowHeight,
     top: top.get(),
     zIndex: dragging.get() ? 10 : 0,
-    transform: [{ scale: withSpring(dragging.get() ? 1.03 : 1, SPRING) }],
-    shadowOpacity: withSpring(dragging.get() ? 0.18 : 0, SPRING),
+    transform: [{ scale: withTiming(dragging.get() ? 1.02 : 1, Fast) }],
+    shadowOpacity: withTiming(dragging.get() ? 0.18 : 0, Fast),
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: dragging.get() ? 8 : 0,

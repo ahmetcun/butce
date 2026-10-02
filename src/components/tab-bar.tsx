@@ -2,10 +2,11 @@ import { router } from 'expo-router';
 import type { Tabs } from 'expo-router/js-tabs';
 import { useEffect, useState, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { Icon, type GlyphName } from '@/components/icon';
 import { tap } from '@/components/ui';
+import { Base, Fast } from '@/constants/motion';
 import { FontFamily, MaxContentWidth } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -20,14 +21,13 @@ const ICONS: Record<string, GlyphName> = {
 
 const BAR_HEIGHT = 68;
 const PAD = 6;
-const SPRING = { damping: 20, stiffness: 240, mass: 0.7 };
 
 /** Sayfaların altında bırakılması gereken boşluk (yüzen bar + kenar boşluğu). */
 export const TAB_BAR_SPACE = BAR_HEIGHT + 56;
 
 /**
  * Ekranın altında yüzen kapsül bar. Aktif sekmenin arkasındaki renkli hap
- * yaylanarak kayar. Animasyonlar yalnızca transform ve renkle yapılır
+ * yumuşakça kayar. Animasyonlar yalnızca transform ve renkle yapılır
  * (UI thread'de çalışır, JS'i meşgul etmez).
  */
 export function TabBar({ state, descriptors, navigation, insets }: TabBarProps) {
@@ -37,7 +37,7 @@ export function TabBar({ state, descriptors, navigation, insets }: TabBarProps) 
 
   const x = useSharedValue(0);
   useEffect(() => {
-    if (slot > 0) x.set(withSpring(state.index * slot, SPRING));
+    if (slot > 0) x.set(withTiming(state.index * slot, Base));
   }, [state.index, slot, x]);
   const pill = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }] }));
 
@@ -84,7 +84,7 @@ function TabItem({ icon, label, focused, onPress }: { icon: GlyphName; label: st
   const pressed = useSharedValue(1);
 
   useEffect(() => {
-    progress.set(withTiming(focused ? 1 : 0, { duration: 200 }));
+    progress.set(withTiming(focused ? 1 : 0, Base));
   }, [focused, progress]);
 
   const muted = t.textMuted;
@@ -98,14 +98,14 @@ function TabItem({ icon, label, focused, onPress }: { icon: GlyphName; label: st
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => pressed.set(withSpring(0.88, SPRING))}
-      onPressOut={() => pressed.set(withSpring(1, SPRING))}
+      onPressIn={() => pressed.set(withTiming(0.92, Fast))}
+      onPressOut={() => pressed.set(withTiming(1, Fast))}
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
       accessibilityLabel={label}
       style={styles.item}>
       <Animated.View style={[styles.itemInner, content]}>
-        <Icon name={icon} size={25} color={focused ? '#FFFFFF' : t.textMuted} weight={focused ? 'fill' : 'duotone'} />
+        <Icon name={icon} size={25} color={focused ? '#FFFFFF' : t.textMuted} weight={focused ? 'bold' : 'duotone'} />
         <Animated.Text style={[styles.label, labelStyle]} numberOfLines={1}>
           {label}
         </Animated.Text>

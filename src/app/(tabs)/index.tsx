@@ -13,7 +13,7 @@ import { upcomingBills } from '@/lib/selectors';
 import { useBudget } from '@/store/budget';
 
 const SECTIONS: { key: Bolum; label: string }[] = [
-  { key: 'genel', label: 'Genel bakış' },
+  { key: 'genel', label: 'Özet' },
   { key: 'butce', label: 'Bütçe' },
   { key: 'odemeler', label: 'Ödemeler' },
   { key: 'hedefler', label: 'Hedefler' },

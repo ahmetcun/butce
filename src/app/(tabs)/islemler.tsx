@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Page, PageHeader } from '@/components/headers';
 import { Icon } from '@/components/icon';
@@ -73,6 +72,7 @@ export default function Transactions() {
       header={
         <PageHeader
           title="İşlemler"
+          subtitle="Ailenin tüm gelir ve giderleri"
           search={
             <View style={[styles.search, { backgroundColor: t.surface }]}>
               <Icon name="search" size={22} color={t.text} />
@@ -161,10 +161,10 @@ export default function Transactions() {
         </Card>
       ) : (
         <View>
-          {groups.map(([day, list], gi) => {
+          {groups.map(([day, list]) => {
             const net = totals(list).balance;
             return (
-              <Animated.View key={day} entering={gi < 3 ? FadeInDown.delay(gi * 40).duration(240) : undefined}>
+              <View key={day}>
                 <SectionLabel>{`${dayLabel(list[0].date)} · ${formatMoney(net, { sign: true, decimals: false })}`}</SectionLabel>
                 <Card style={{ paddingVertical: Spacing.one }}>
                   {list.map((tx) => (
@@ -177,7 +177,7 @@ export default function Transactions() {
                     />
                   ))}
                 </Card>
-              </Animated.View>
+              </View>
             );
           })}
           <T v="small" muted style={{ textAlign: 'center', marginTop: Spacing.three }}>
