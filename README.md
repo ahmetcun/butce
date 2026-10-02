@@ -1,6 +1,6 @@
 # Aile Bütçem
 
-Aile bütçesi takip uygulaması. Akbank mobil uygulamasının düzeninden ilham alındı, renkleri farklı ve kullanıcı tarafından seçilebilir.
+Aile bütçesi takip uygulaması. Akbank Mobil'in düzeni temel alındı: renkli özet alanı, hap sekmeler, sınıra binen arama çubuğu, başlıklı beyaz kartlar ve sade alt bar. Renkler farklı ve kullanıcı tarafından seçilebilir.
 
 ## Özellikler
 
@@ -12,7 +12,9 @@ Aile bütçesi takip uygulaması. Akbank mobil uygulamasının düzeninden ilham
 - **Ödeme hatırlatmaları:** Faturanın son gününden 1-5 gün önce ve son gün, seçilen saatte bildirim gelir. Ödendi işaretlenince o ayın hatırlatması iptal olur.
 - **Birikim hedefleri:** Hedef tutarı ve ilerleme gösterilir, hedefe hızlıca para eklenebilir.
 - **Kişiselleştirme:** 5 renk teması, açık/koyu mod, ana sayfa bölümlerini sürükleyerek sıralama ve gizleme, tutarları gizleme.
-- **Animasyonlu alt bar:** Yüzen kapsül şeklinde. Aktif sekme vurgusu yaylı animasyonla kayar. iOS 26'da Liquid Glass efekti kullanılır.
+- **Ana sayfa bölümleri:** Genel bakış, Bütçe, Ödemeler ve Hedefler. Her bölümün kendi rengi var ve geçişte renk yumuşakça değişir.
+- **Animasyonlar:** Sayarak artan tutarlar, sırayla süzülen kartlar, kayan sekme vurgusu, yaylanan butonlar, zıplayan alt bar ikonları.
+- **Arama:** İşlemler not, kategori ve kişi adına göre aranabilir.
 
 ## Teknolojiler
 
@@ -27,7 +29,7 @@ Aile bütçesi takip uygulaması. Akbank mobil uygulamasının düzeninden ilham
 | Dokunsal geri bildirim | `expo-haptics` |
 | Animasyon ve jestler | `react-native-reanimated`, `react-native-gesture-handler` |
 | Bildirimler | `expo-notifications` (yerel, planlı) |
-| Cam efekti | `expo-glass-effect` |
+| Yazı tipi | Lexend (`@expo-google-fonts/lexend`) |
 
 Veriler şimdilik yalnızca cihazda tutuluyor. Aile üyelerinin farklı telefonlardan aynı bütçeyi görmesi için ileride bir senkronizasyon katmanı eklenecek (örneğin Supabase).
 
@@ -45,10 +47,11 @@ npx expo start
 ```
 src/
   app/              Ekranlar (Expo Router)
-    (tabs)/         Ana Sayfa, İşlemler, Bütçe, Profil
+    (tabs)/         Ana sayfa, İşlemler, Ekle, Profil
     ekle.tsx        Hızlı işlem ekleme (modal)
     hosgeldin.tsx   İlk açılış
   components/       Ortak arayüz parçaları
+    home/           Ana sayfa bölümleri (genel, bütçe, ödemeler, hedefler)
   constants/        Tema ve renkler
   lib/              Biçimlendirme, hesaplamalar, depolama
   store/            Zustand veri deposu

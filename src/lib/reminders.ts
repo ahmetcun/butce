@@ -80,7 +80,7 @@ export async function syncBillReminders(bills: Bill[], settings: Settings) {
 
   for (const i of upcoming) {
     await Notifications.scheduleNotificationAsync({
-      content: { title: i.title, body: i.body, data: { url: '/butce?tab=bills' } },
+      content: { title: i.title, body: i.body, data: { url: '/?bolum=odemeler' } },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: i.date, channelId: CHANNEL },
     });
   }

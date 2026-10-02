@@ -1,45 +1,58 @@
 import '@/global.css';
 
-import { Platform } from 'react-native';
-
 /**
  * Kullanıcının seçebileceği ana renkler. Akbank'ın kırmızısı yerine
  * varsayılan olarak zümrüt yeşili kullanılıyor.
  */
 export const Accents = {
-  zumrut: { name: 'Zümrüt', primary: '#0E7C66', deep: '#08594A', soft: '#D7F0E8', softDark: '#123B33' },
-  lacivert: { name: 'Lacivert', primary: '#2D4BB3', deep: '#1D3282', soft: '#DDE4FA', softDark: '#1C2647' },
-  mor: { name: 'Mor', primary: '#6E43B0', deep: '#4E2D84', soft: '#EADFF8', softDark: '#2C2142' },
-  turuncu: { name: 'Turuncu', primary: '#D4651C', deep: '#A34A10', soft: '#FBE6D6', softDark: '#3D2617' },
-  okyanus: { name: 'Okyanus', primary: '#0A7EA8', deep: '#075C7B', soft: '#D6EEF7', softDark: '#13323F' },
+  zumrut: { name: 'Zümrüt', primary: '#0B7A63', deep: '#075845', soft: '#D9F0E9', softDark: '#123B33' },
+  lacivert: { name: 'Lacivert', primary: '#2449B8', deep: '#173285', soft: '#DEE5FA', softDark: '#1C2647' },
+  mor: { name: 'Mor', primary: '#6A3DB0', deep: '#4B2A82', soft: '#EBE1F8', softDark: '#2C2142' },
+  turuncu: { name: 'Turuncu', primary: '#D45F12', deep: '#A2470B', soft: '#FBE7D8', softDark: '#3D2617' },
+  okyanus: { name: 'Okyanus', primary: '#0678A6', deep: '#055B7D', soft: '#D7EEF7', softDark: '#13323F' },
 } as const;
 
 export type AccentKey = keyof typeof Accents;
 
+/**
+ * Ana sayfadaki her bölümün kendi rengi var (Akbank'taki Kartlar sarı,
+ * Yatırımlar koyu gri gibi). "primary" kullanıcının seçtiği renk demek.
+ */
+export const SectionColors = {
+  genel: 'primary',
+  butce: 'primary',
+  odemeler: '#E8A10C',
+  hedefler: '#2F3138',
+} as const;
+
 const Base = {
   light: {
-    background: '#F3F5F7',
+    background: '#F4F4F6',
     surface: '#FFFFFF',
-    surfaceAlt: '#EEF1F4',
-    text: '#14181F',
-    textMuted: '#667085',
-    border: '#E3E7EC',
+    surfaceAlt: '#F0F1F3',
+    text: '#1D1D20',
+    textMuted: '#6B6E76',
+    border: '#E6E7EA',
     income: '#139A5B',
     expense: '#D93A3A',
     warning: '#E39A13',
     onPrimary: '#FFFFFF',
+    promo: '#D6EDE4',
+    promoText: '#0B5E48',
   },
   dark: {
-    background: '#0E1116',
-    surface: '#171B22',
-    surfaceAlt: '#1F242D',
-    text: '#F2F4F7',
-    textMuted: '#98A2B3',
-    border: '#2A303A',
+    background: '#0F1013',
+    surface: '#1A1B1F',
+    surfaceAlt: '#24262B',
+    text: '#F2F3F5',
+    textMuted: '#9A9DA6',
+    border: '#2C2E34',
     income: '#3CC584',
     expense: '#F26464',
     warning: '#F2B33D',
     onPrimary: '#FFFFFF',
+    promo: '#16352B',
+    promoText: '#8FDDBF',
   },
 } as const;
 
@@ -58,11 +71,13 @@ export function buildTheme(scheme: Scheme, accent: AccentKey) {
 
 export type Theme = ReturnType<typeof buildTheme>;
 
-export const Fonts = Platform.select({
-  ios: { sans: 'system-ui', rounded: 'ui-rounded', mono: 'ui-monospace' },
-  default: { sans: 'normal', rounded: 'normal', mono: 'monospace' },
-  web: { sans: 'var(--font-display)', rounded: 'var(--font-rounded)', mono: 'var(--font-mono)' },
-});
+/** Akbank'ın geniş, geometrik yazı tipine yakın: Lexend */
+export const FontFamily = {
+  regular: 'Lexend_400Regular',
+  medium: 'Lexend_500Medium',
+  semibold: 'Lexend_600SemiBold',
+  bold: 'Lexend_700Bold',
+} as const;
 
 export const Spacing = {
   half: 2,
@@ -77,7 +92,7 @@ export const Spacing = {
 export const Radius = {
   sm: 10,
   md: 16,
-  lg: 24,
+  lg: 20,
   pill: 999,
 } as const;
 

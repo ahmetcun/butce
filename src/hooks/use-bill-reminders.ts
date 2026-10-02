@@ -23,5 +23,5 @@ export function useBillReminders() {
     return () => clearTimeout(id);
   }, [hydrated, bills, billReminders, reminderDaysBefore, reminderHour]);
 
-  useEffect(() => onReminderTap((url) => router.push(url as '/butce')), []);
+  useEffect(() => onReminderTap((url) => router.push(url as '/')), []);
 }

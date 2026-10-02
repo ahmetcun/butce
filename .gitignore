@@ -41,3 +41,10 @@ example
 # generated native folders
 /ios
 /android
+
+# Referans ekran görüntüleri (GitHub'a gönderilmez)
+IMG_*.PNG
+IMG_*.png
+IMG_*.jpg
+IMG_*.jpeg
+IMG_*.HEIC

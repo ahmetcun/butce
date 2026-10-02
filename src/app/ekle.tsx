@@ -1,12 +1,13 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
 import { Chip, IconBubble, Row, T, tap, Touch } from '@/components/ui';
-import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { FontFamily, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { formatMoney } from '@/lib/format';
 import { frequentCategoryIds } from '@/lib/selectors';
@@ -18,7 +19,7 @@ const QUICK_AMOUNTS = [50, 100, 250, 500, 1000];
 export default function AddTransaction() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ type?: TxType }>();
+  const params = useLocalSearchParams<{ type?: TxType; kategori?: string }>();
 
   const categories = useBudget((s) => s.categories);
   const members = useBudget((s) => s.members);
@@ -44,7 +45,7 @@ export default function AddTransaction() {
     return [...list].sort((a, b) => rank(a.id) - rank(b.id));
   }, [categories, transactions, type]);
 
-  const [pickedCategory, setCategoryId] = useState<string | null>(null);
+  const [pickedCategory, setCategoryId] = useState<string | null>(params.kategori ?? null);
   const categoryId = pickedCategory && sorted.some((c) => c.id === pickedCategory) ? pickedCategory : sorted[0]?.id;
 
   const amount = Number(raw.replace(',', '.')) || 0;
@@ -74,49 +75,61 @@ export default function AddTransaction() {
 
   // Yazılanı aynen göster: "1.250," → kullanıcı virgülden sonrasını yazıyor
   const [intPart, fracPart] = raw.split(',');
-  const display = raw
-    ? `${formatMoney(Number(intPart) || 0, { decimals: false }).replace(' ₺', '')}${fracPart !== undefined ? ',' + fracPart : ''} ₺`
-    : '0 ₺';
+  const intText = formatMoney(Number(intPart) || 0, { decimals: false }).replace(' TL', '');
+  const fracText = fracPart !== undefined ? ',' + fracPart : '';
+
+  // Her tuşa basışta tutar hafifçe zıplar
+  const pop = useSharedValue(1);
+  useEffect(() => {
+    if (raw) pop.set(withSequence(withTiming(1.06, { duration: 70 }), withSpring(1, { damping: 12, stiffness: 300 })));
+  }, [raw, pop]);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
 
   return (
     <View style={{ flex: 1, backgroundColor: t.background }}>
-      <View style={[styles.wrap, { paddingTop: Platform.OS === 'ios' ? Spacing.three : insets.top + Spacing.two }]}>
-        {/* Üst bar */}
-        <Row style={{ justifyContent: 'space-between', paddingHorizontal: Spacing.three }}>
-          <Touch onPress={() => router.back()} hitSlop={12} accessibilityLabel="Kapat">
-            <Icon name="close" color={t.text} size={24} />
-          </Touch>
-          <Row style={[styles.segment, { backgroundColor: t.surfaceAlt }]}>
-            {(['expense', 'income'] as const).map((k) => (
-              <Touch
-                key={k}
-                onPress={() => setType(k)}
-                style={[styles.segmentItem, type === k && { backgroundColor: t.surface }]}>
-                <T v="bodyBold" color={type === k ? (k === 'income' ? t.income : t.expense) : t.textMuted}>
-                  {k === 'expense' ? 'Gider' : 'Gelir'}
-                </T>
-              </Touch>
-            ))}
+      {/* Renkli üst alan: tür seçimi + tutar */}
+      <View style={{ backgroundColor: accent, paddingTop: Platform.OS === 'ios' ? Spacing.three : insets.top + Spacing.two, paddingBottom: Spacing.four }}>
+        <View style={styles.inner}>
+          <Row style={{ justifyContent: 'space-between', paddingHorizontal: Spacing.three }}>
+            <Touch onPress={() => router.back()} hitSlop={12} accessibilityLabel="Kapat">
+              <Icon name="close" color="#fff" size={24} />
+            </Touch>
+            <Row style={styles.segment}>
+              {(['expense', 'income'] as const).map((k) => (
+                <Touch key={k} onPress={() => setType(k)} style={[styles.segmentItem, type === k && { backgroundColor: '#fff' }]}>
+                  <T v="bodyBold" color={type === k ? accent : '#fff'}>
+                    {k === 'expense' ? 'Gider' : 'Gelir'}
+                  </T>
+                </Touch>
+              ))}
+            </Row>
+            <View style={{ width: 24 }} />
           </Row>
-          <View style={{ width: 24 }} />
-        </Row>
 
-        {/* Tutar */}
-        <View style={{ alignItems: 'center', paddingVertical: Spacing.three }}>
-          <T style={{ fontSize: 44, fontWeight: '800', letterSpacing: -1 }} color={amount ? t.text : t.textMuted} numberOfLines={1} adjustsFontSizeToFit>
-            {display}
-          </T>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingHorizontal: Spacing.three, marginTop: Spacing.two }}>
-            {QUICK_AMOUNTS.map((v) => (
-              <Touch key={v} onPress={() => setRaw(String(v))} style={[styles.quickAmount, { borderColor: t.border }]}>
-                <T v="small" muted style={{ fontWeight: '600' }}>
-                  {v}
-                </T>
-              </Touch>
-            ))}
-          </ScrollView>
+          <View style={{ alignItems: 'center', paddingTop: Spacing.four }}>
+            <T v="label" color="rgba(255,255,255,0.9)">
+              {type === 'expense' ? 'HARCAMA TUTARI' : 'GELİR TUTARI'}
+            </T>
+            <Animated.View style={[{ marginTop: 6 }, popStyle]}>
+              <Text style={{ color: '#fff', fontFamily: FontFamily.semibold, fontSize: 48, letterSpacing: -1, opacity: raw ? 1 : 0.6 }} numberOfLines={1} adjustsFontSizeToFit>
+                {intText}
+                <Text style={{ fontSize: 32, opacity: 0.6 }}>{fracText} TL</Text>
+              </Text>
+            </Animated.View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: Spacing.three, marginTop: Spacing.three }}>
+              {QUICK_AMOUNTS.map((v) => (
+                <Touch key={v} pressScale={0.9} onPress={() => setRaw(String(v))} style={styles.quickAmount}>
+                  <T v="small" color="#fff" style={{ fontWeight: '500' }}>
+                    {v} TL
+                  </T>
+                </Touch>
+              ))}
+            </ScrollView>
+          </View>
         </View>
+      </View>
 
+      <View style={[styles.wrap, { paddingTop: Spacing.three }]}>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: Spacing.three, paddingBottom: Spacing.three }} keyboardShouldPersistTaps="handled">
           {/* Kategoriler */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: Spacing.two, paddingHorizontal: Spacing.three }}>
@@ -208,9 +221,15 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
   },
+  inner: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+  },
   segment: {
     padding: 4,
     borderRadius: Radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.18)',
   },
   segmentItem: {
     paddingHorizontal: 22,
@@ -218,10 +237,10 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
   },
   quickAmount: {
-    borderWidth: 1,
     borderRadius: Radius.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(255,255,255,0.18)',
   },
   category: {
     width: 84,

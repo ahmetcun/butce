@@ -1,6 +1,6 @@
 /**
  * Intl desteğine güvenmeden Türkçe para ve tarih biçimlendirme.
- * Örn: 12345.5 → "12.345,50 ₺"
+ * Örn: 12345.5 → "12.345,50 TL"
  */
 export function formatMoney(value: number, opts: { decimals?: boolean; sign?: boolean } = {}) {
   const { decimals = true, sign = false } = opts;
@@ -9,7 +9,13 @@ export function formatMoney(value: number, opts: { decimals?: boolean; sign?: bo
   const [int, frac] = fixed.split('.');
   const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   const prefix = value < 0 ? '-' : sign && value > 0 ? '+' : '';
-  return `${prefix}${grouped}${frac ? ',' + frac : ''} ₺`;
+  return `${prefix}${grouped}${frac ? ',' + frac : ''} TL`;
+}
+
+/** Akbank tarzı gösterim için: { int: "65", frac: ",80" } */
+export function splitMoney(value: number) {
+  const [int, frac] = formatMoney(value).replace(' TL', '').split(',');
+  return { int, frac: ',' + frac };
 }
 
 export const MONTHS = [
