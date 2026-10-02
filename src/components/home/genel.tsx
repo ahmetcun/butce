@@ -45,7 +45,7 @@ export function GenelBody({ go }: { go: (b: Bolum) => void }) {
       {sections
         .filter((s) => s.visible)
         .map((s, i) => (
-          <Animated.View key={s.key} entering={FadeInDown.delay(120 + i * 70).springify().damping(18)}>
+          <Animated.View key={s.key} entering={FadeInDown.delay(60 + i * 40).duration(260)}>
             <HomeSection k={s.key} go={go} />
           </Animated.View>
         ))}
@@ -95,7 +95,7 @@ function MemberCards() {
       {byMember.map(({ m, expense, income }, i) => (
         <Animated.View
           key={m.id}
-          entering={FadeInRight.delay(i * 80).springify().damping(18)}
+          entering={FadeInRight.delay(i * 50).duration(260)}
           style={[styles.memberCard, { width: cardWidth, backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 }]}>
           <Row style={{ gap: 12 }}>
             <View style={[styles.memberAvatar, { borderColor: t.primary, backgroundColor: t.primarySoft }]}>
@@ -113,7 +113,7 @@ function MemberCards() {
           </Row>
           <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.border, marginVertical: Spacing.three }} />
           <T v="body">Bu ay harcama</T>
-          <Amount value={expense} size={30} hidden={hidden} />
+          <Amount value={expense} size={30} hidden={hidden} animate={false} />
           <T v="small" muted style={{ marginTop: 4 }}>
             Gelir: {hidden ? '•••••' : formatMoney(income)}
           </T>

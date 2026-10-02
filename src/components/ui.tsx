@@ -229,12 +229,16 @@ export function RoundAction({
   );
 }
 
-/** Değer değişince eski değerden yenisine sayarak ilerler. */
-function useCountUp(value: number, duration = 700) {
+/**
+ * Değer değişince eski değerden yenisine sayarak ilerler.
+ * İlk açılışta saymaz (aynı anda birçok tutar sayınca JS thread'i tıkanıyordu).
+ */
+function useCountUp(value: number, duration = 600) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
   useEffect(() => {
     const start = from.current;
+    if (start === value) return;
     const t0 = Date.now();
     let raf = 0;
     const step = () => {
@@ -343,10 +347,11 @@ export function ProgressBar({ value, color, height = 6 }: { value: number; color
   useEffect(() => {
     w.set(withTiming(pct, { duration: 700 }));
   }, [pct, w]);
-  const animated = useAnimatedStyle(() => ({ width: `${w.get() * 100}%` }));
+  // Genişlik yerine scaleX: her karede yerleşim hesabı yapılmaz, UI thread'de akar
+  const animated = useAnimatedStyle(() => ({ transform: [{ scaleX: w.get() }] }));
   return (
     <View style={{ height, borderRadius: height, backgroundColor: t.surfaceAlt, overflow: 'hidden' }}>
-      <Animated.View style={[{ height: '100%', borderRadius: height, backgroundColor: barColor }, animated]} />
+      <Animated.View style={[{ height: '100%', width: '100%', backgroundColor: barColor, transformOrigin: 'left' }, animated]} />
     </View>
   );
 }

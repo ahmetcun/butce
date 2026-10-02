@@ -1,93 +1,146 @@
-import { SymbolView, type AndroidSymbol, type SFSymbol } from 'expo-symbols';
-import type { ColorValue } from 'react-native';
+import type { IconProps, IconWeight } from 'phosphor-react-native';
+import type { ComponentType } from 'react';
 
-type Glyph = { ios: SFSymbol; android: AndroidSymbol };
+import { ArrowDownLeftIcon } from 'phosphor-react-native/src/icons/ArrowDownLeft';
+import { ArrowUpRightIcon } from 'phosphor-react-native/src/icons/ArrowUpRight';
+import { ArrowsClockwiseIcon } from 'phosphor-react-native/src/icons/ArrowsClockwise';
+import { ArrowsDownUpIcon } from 'phosphor-react-native/src/icons/ArrowsDownUp';
+import { ArrowsLeftRightIcon } from 'phosphor-react-native/src/icons/ArrowsLeftRight';
+import { BabyIcon } from 'phosphor-react-native/src/icons/Baby';
+import { BackspaceIcon } from 'phosphor-react-native/src/icons/Backspace';
+import { BellIcon } from 'phosphor-react-native/src/icons/Bell';
+import { BellRingingIcon } from 'phosphor-react-native/src/icons/BellRinging';
+import { BuildingsIcon } from 'phosphor-react-native/src/icons/Buildings';
+import { CalendarBlankIcon } from 'phosphor-react-native/src/icons/CalendarBlank';
+import { CarIcon } from 'phosphor-react-native/src/icons/Car';
+import { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { ChartPieSliceIcon } from 'phosphor-react-native/src/icons/ChartPieSlice';
+import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
+import { CreditCardIcon } from 'phosphor-react-native/src/icons/CreditCard';
+import { DotsSixVerticalIcon } from 'phosphor-react-native/src/icons/DotsSixVertical';
+import { DotsThreeIcon } from 'phosphor-react-native/src/icons/DotsThree';
+import { DotsThreeCircleIcon } from 'phosphor-react-native/src/icons/DotsThreeCircle';
+import { EyeIcon } from 'phosphor-react-native/src/icons/Eye';
+import { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+import { FirstAidKitIcon } from 'phosphor-react-native/src/icons/FirstAidKit';
+import { ForkKnifeIcon } from 'phosphor-react-native/src/icons/ForkKnife';
+import { GameControllerIcon } from 'phosphor-react-native/src/icons/GameController';
+import { GearIcon } from 'phosphor-react-native/src/icons/Gear';
+import { GiftIcon } from 'phosphor-react-native/src/icons/Gift';
+import { GraduationCapIcon } from 'phosphor-react-native/src/icons/GraduationCap';
+import { HeartIcon } from 'phosphor-react-native/src/icons/Heart';
+import { HouseIcon } from 'phosphor-react-native/src/icons/House';
+import { HouseLineIcon } from 'phosphor-react-native/src/icons/HouseLine';
+import { InvoiceIcon } from 'phosphor-react-native/src/icons/Invoice';
+import { LightningIcon } from 'phosphor-react-native/src/icons/Lightning';
+import { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
+import { MoneyIcon } from 'phosphor-react-native/src/icons/Money';
+import { MoonIcon } from 'phosphor-react-native/src/icons/Moon';
+import { PaletteIcon } from 'phosphor-react-native/src/icons/Palette';
+import { PawPrintIcon } from 'phosphor-react-native/src/icons/PawPrint';
+import { PiggyBankIcon } from 'phosphor-react-native/src/icons/PiggyBank';
+import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+import { PlusCircleIcon } from 'phosphor-react-native/src/icons/PlusCircle';
+import { ReceiptIcon } from 'phosphor-react-native/src/icons/Receipt';
+import { ShoppingCartIcon } from 'phosphor-react-native/src/icons/ShoppingCart';
+import { SlidersIcon } from 'phosphor-react-native/src/icons/Sliders';
+import { SparkleIcon } from 'phosphor-react-native/src/icons/Sparkle';
+import { TShirtIcon } from 'phosphor-react-native/src/icons/TShirt';
+import { TargetIcon } from 'phosphor-react-native/src/icons/Target';
+import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
+import { UserIcon } from 'phosphor-react-native/src/icons/User';
+import { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
+import { UsersThreeIcon } from 'phosphor-react-native/src/icons/UsersThree';
+import { WalletIcon } from 'phosphor-react-native/src/icons/Wallet';
+import { XIcon } from 'phosphor-react-native/src/icons/X';
 
 /**
- * Uygulamadaki tüm ikonlar tek yerde. iOS'ta SF Symbols,
- * Android ve web'de Material Symbols kullanılır.
+ * Uygulamadaki tüm ikonlar tek yerde: Phosphor, çift tonlu (duotone).
+ * Paketin tamamı değil, yalnızca kullanılan ikonlar içe aktarılır.
  */
 export const Glyphs = {
-  // Gezinme
-  home: { ios: 'house.fill', android: 'home' },
-  list: { ios: 'list.bullet.rectangle', android: 'receipt_long' },
-  plus: { ios: 'plus', android: 'add' },
-  chart: { ios: 'chart.pie.fill', android: 'pie_chart' },
-  person: { ios: 'person.crop.circle.fill', android: 'account_circle' },
-
-  // Arayüz
-  bell: { ios: 'bell.fill', android: 'notifications' },
-  gear: { ios: 'gearshape.fill', android: 'settings' },
-  close: { ios: 'xmark', android: 'close' },
-  check: { ios: 'checkmark', android: 'check' },
-  backspace: { ios: 'delete.left', android: 'backspace' },
-  chevronRight: { ios: 'chevron.right', android: 'chevron_right' },
-  eye: { ios: 'eye.fill', android: 'visibility' },
-  eyeOff: { ios: 'eye.slash.fill', android: 'visibility_off' },
-  trash: { ios: 'trash.fill', android: 'delete' },
-  repeat: { ios: 'arrow.triangle.2.circlepath', android: 'autorenew' },
-  arrowUp: { ios: 'arrow.up.right', android: 'north_east' },
-  arrowDown: { ios: 'arrow.down.left', android: 'south_west' },
-  calendar: { ios: 'calendar', android: 'calendar_month' },
-  target: { ios: 'target', android: 'flag' },
-  bolt: { ios: 'bolt.fill', android: 'bolt' },
-  palette: { ios: 'paintpalette.fill', android: 'palette' },
-  family: { ios: 'person.3.fill', android: 'groups' },
-  sliders: { ios: 'slider.horizontal.3', android: 'tune' },
-  moon: { ios: 'moon.fill', android: 'dark_mode' },
-  arrowUpDown: { ios: 'arrow.up.arrow.down', android: 'swap_vert' },
-  grip: { ios: 'line.3.horizontal', android: 'drag_indicator' },
-  search: { ios: 'magnifyingglass', android: 'search' },
-  homeOutline: { ios: 'house', android: 'home' },
-  swap: { ios: 'arrow.left.arrow.right', android: 'swap_horiz' },
-  plusCircle: { ios: 'plus.circle', android: 'add_circle' },
-  heart: { ios: 'heart', android: 'favorite' },
-  personOutline: { ios: 'person.crop.circle', android: 'account_circle' },
-  dots: { ios: 'ellipsis', android: 'more_horiz' },
-  chevronDown: { ios: 'chevron.down', android: 'expand_more' },
-  wallet: { ios: 'wallet.bifold', android: 'account_balance_wallet' },
-  sparkles: { ios: 'sparkles', android: 'auto_awesome' },
-  bellOutline: { ios: 'bell.badge', android: 'notifications_active' },
-  piggy: { ios: 'banknote', android: 'savings' },
-  receipt: { ios: 'list.bullet.rectangle.portrait', android: 'receipt_long' },
-
-  // Kategoriler
-  cart: { ios: 'cart.fill', android: 'shopping_cart' },
-  bill: { ios: 'doc.text.fill', android: 'receipt' },
-  house: { ios: 'house.lodge.fill', android: 'cottage' },
-  car: { ios: 'car.fill', android: 'directions_car' },
-  food: { ios: 'fork.knife', android: 'restaurant' },
-  health: { ios: 'cross.case.fill', android: 'medical_services' },
-  school: { ios: 'book.fill', android: 'school' },
-  clothes: { ios: 'tshirt.fill', android: 'checkroom' },
-  child: { ios: 'figure.and.child.holdinghands', android: 'child_care' },
-  fun: { ios: 'gamecontroller.fill', android: 'sports_esports' },
-  card: { ios: 'creditcard.fill', android: 'credit_card' },
-  more: { ios: 'ellipsis.circle.fill', android: 'more_horiz' },
-  salary: { ios: 'banknote.fill', android: 'payments' },
-  extra: { ios: 'plus.circle.fill', android: 'add_circle' },
-  building: { ios: 'building.2.fill', android: 'apartment' },
-  gift: { ios: 'gift.fill', android: 'redeem' },
-  pet: { ios: 'pawprint.fill', android: 'pets' },
-} satisfies Record<string, Glyph>;
+  home: HouseIcon,
+  list: ReceiptIcon,
+  plus: PlusIcon,
+  chart: ChartPieSliceIcon,
+  person: UserIcon,
+  bell: BellIcon,
+  gear: GearIcon,
+  close: XIcon,
+  check: CheckIcon,
+  backspace: BackspaceIcon,
+  chevronRight: CaretRightIcon,
+  eye: EyeIcon,
+  eyeOff: EyeSlashIcon,
+  trash: TrashIcon,
+  repeat: ArrowsClockwiseIcon,
+  arrowUp: ArrowUpRightIcon,
+  arrowDown: ArrowDownLeftIcon,
+  calendar: CalendarBlankIcon,
+  target: TargetIcon,
+  bolt: LightningIcon,
+  palette: PaletteIcon,
+  family: UsersThreeIcon,
+  sliders: SlidersIcon,
+  moon: MoonIcon,
+  arrowUpDown: ArrowsDownUpIcon,
+  grip: DotsSixVerticalIcon,
+  search: MagnifyingGlassIcon,
+  homeOutline: HouseIcon,
+  swap: ArrowsLeftRightIcon,
+  plusCircle: PlusCircleIcon,
+  heart: HeartIcon,
+  personOutline: UserCircleIcon,
+  dots: DotsThreeIcon,
+  chevronDown: CaretDownIcon,
+  wallet: WalletIcon,
+  sparkles: SparkleIcon,
+  bellOutline: BellRingingIcon,
+  piggy: PiggyBankIcon,
+  receipt: ReceiptIcon,
+  cart: ShoppingCartIcon,
+  bill: InvoiceIcon,
+  house: HouseLineIcon,
+  car: CarIcon,
+  food: ForkKnifeIcon,
+  health: FirstAidKitIcon,
+  school: GraduationCapIcon,
+  clothes: TShirtIcon,
+  child: BabyIcon,
+  fun: GameControllerIcon,
+  card: CreditCardIcon,
+  more: DotsThreeCircleIcon,
+  salary: MoneyIcon,
+  extra: PlusCircleIcon,
+  building: BuildingsIcon,
+  gift: GiftIcon,
+  pet: PawPrintIcon,
+} satisfies Record<string, ComponentType<IconProps>>;
 
 export type GlyphName = keyof typeof Glyphs;
+
+/** Dolgu alanı olmayan küçük arayüz işaretleri: çift ton yerine kalın çizgi daha okunaklı */
+const LINE_ONLY = new Set<GlyphName>(['arrowDown', 'arrowUp', 'arrowUpDown', 'backspace', 'check', 'chevronDown', 'chevronRight', 'close', 'dots', 'grip', 'plus', 'swap']);
 
 export function Icon({
   name,
   size = 22,
   color,
+  weight,
 }: {
   name: GlyphName;
   size?: number;
-  color: ColorValue;
+  color: string;
+  weight?: IconWeight;
 }) {
-  const g: Glyph = Glyphs[name];
+  const Component = Glyphs[name];
   return (
-    <SymbolView
-      name={{ ios: g.ios, android: g.android, web: g.android }}
+    <Component
       size={size}
-      tintColor={color}
+      color={color}
+      weight={weight ?? (LINE_ONLY.has(name) ? 'bold' : 'duotone')}
+      duotoneOpacity={0.28}
     />
   );
 }

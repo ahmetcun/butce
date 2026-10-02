@@ -126,7 +126,7 @@ export function OdemelerBody({ adding, setAdding }: { adding: boolean; setAdding
             const paid = b.paidMonths.includes(month);
             const late = !paid && b.day < today;
             return (
-              <Animated.View key={b.id} entering={FadeInDown.delay(i * 50)} layout={LinearTransition}>
+              <Animated.View key={b.id} layout={LinearTransition}>
                 <Touch
                   pressScale={0.98}
                   onPress={() => toggleBillPaid(b.id)}

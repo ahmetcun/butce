@@ -5,6 +5,7 @@ import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withSpring, withTim
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
+import { TAB_BAR_SPACE } from '@/components/tab-bar';
 import { SearchPill, T, Touch } from '@/components/ui';
 import { FontFamily, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -193,7 +194,7 @@ export function Page({ header, children }: { header: ReactNode; children: ReactN
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: t.background }}
-      contentContainerStyle={{ paddingBottom: Spacing.five }}
+      contentContainerStyle={{ paddingBottom: TAB_BAR_SPACE }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled">
       {header}

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { useMemo, useState, type ReactNode } from 'react';
+import { View } from 'react-native';
 
 import { HomeHeader, Page } from '@/components/headers';
 import { ButceBody, ButceHero } from '@/components/home/butce';
@@ -24,12 +24,21 @@ export default function Home() {
   const params = useLocalSearchParams<{ bolum?: Bolum }>();
   const bills = useBudget((s) => s.bills);
 
-  const [bolum, setBolum] = useState<Bolum>(params.bolum ?? 'genel');
+  const [bolum, setBolumState] = useState<Bolum>(params.bolum ?? 'genel');
+  // Ziyaret edilen bölümler bir kez oluşturulup bellekte tutulur; geçişte yeniden kurulmaz
+  const [visited, setVisited] = useState<Bolum[]>([params.bolum ?? 'genel']);
+  const setBolum = (b: Bolum) => {
+    setBolumState(b);
+    setVisited((v) => (v.includes(b) ? v : [...v, b]));
+  };
   // Bildirimden ya da başka sayfadan belirli bir bölümle gelindiğinde
   const [lastParam, setLastParam] = useState(params.bolum);
   if (params.bolum !== lastParam) {
     setLastParam(params.bolum);
-    if (params.bolum) setBolum(params.bolum);
+    if (params.bolum) {
+      setBolumState(params.bolum);
+      if (!visited.includes(params.bolum)) setVisited([...visited, params.bolum]);
+    }
   }
 
   // Bölümler arası paylaşılan form durumları (renkli alandaki butonlar alttaki formu açar)
@@ -61,14 +70,24 @@ export default function Home() {
           {bolum === 'hedefler' ? <HedeflerHero setAdding={setAddingGoal} setCustomFor={setGoalCustomFor} /> : null}
         </HomeHeader>
       }>
-      <Animated.View key={bolum} entering={FadeIn.duration(250)}>
-        {bolum === 'genel' ? <GenelBody go={go} /> : null}
-        {bolum === 'butce' ? <ButceBody editing={editingLimit} setEditing={setEditingLimit} /> : null}
-        {bolum === 'odemeler' ? <OdemelerBody adding={addingBill} setAdding={setAddingBill} /> : null}
-        {bolum === 'hedefler' ? (
-          <HedeflerBody adding={addingGoal} setAdding={setAddingGoal} customFor={goalCustomFor} setCustomFor={setGoalCustomFor} />
-        ) : null}
-      </Animated.View>
+      <Pane show={bolum === 'genel'} mounted={visited.includes('genel')}>
+        <GenelBody go={go} />
+      </Pane>
+      <Pane show={bolum === 'butce'} mounted={visited.includes('butce')}>
+        <ButceBody editing={editingLimit} setEditing={setEditingLimit} />
+      </Pane>
+      <Pane show={bolum === 'odemeler'} mounted={visited.includes('odemeler')}>
+        <OdemelerBody adding={addingBill} setAdding={setAddingBill} />
+      </Pane>
+      <Pane show={bolum === 'hedefler'} mounted={visited.includes('hedefler')}>
+        <HedeflerBody adding={addingGoal} setAdding={setAddingGoal} customFor={goalCustomFor} setCustomFor={setGoalCustomFor} />
+      </Pane>
     </Page>
   );
+}
+
+/** Bölüm içeriği: ilk ziyarette oluşur, sonra gizlenip gösterilir. */
+function Pane({ show, mounted, children }: { show: boolean; mounted: boolean; children: ReactNode }) {
+  if (!mounted) return null;
+  return <View style={{ display: show ? 'flex' : 'none' }}>{children}</View>;
 }

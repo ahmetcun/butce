@@ -25,7 +25,7 @@ Aile bütçesi takip uygulaması. Akbank Mobil'in düzeni temel alındı: renkli
 | Gezinme | Expo Router (dosya tabanlı; alt sekmeler + modal) |
 | Durum yönetimi | Zustand |
 | Kalıcı veri | `expo-sqlite/kv-store` (telefon), `localStorage` (web) |
-| İkonlar | `expo-symbols` (iOS'ta SF Symbols, Android/web'de Material Symbols) |
+| İkonlar | Phosphor, çift tonlu (`phosphor-react-native` + `react-native-svg`) |
 | Dokunsal geri bildirim | `expo-haptics` |
 | Animasyon ve jestler | `react-native-reanimated`, `react-native-gesture-handler` |
 | Bildirimler | `expo-notifications` (yerel, planlı) |

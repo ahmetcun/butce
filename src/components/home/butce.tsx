@@ -61,7 +61,6 @@ export function ButceBody({ editing, setEditing }: { editing: string | null; set
           return (
             <Animated.View
               key={c.id}
-              entering={FadeInDown.delay(i * 40)}
               layout={LinearTransition}
               style={[styles.row, i < rows.length - 1 && { borderBottomColor: t.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
               <Touch pressScale={0.98} onPress={() => open(c.id, c.limit)}>

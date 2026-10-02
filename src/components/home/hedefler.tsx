@@ -126,7 +126,7 @@ export function HedeflerBody({
           const ratio = g.saved / g.target;
           const done = ratio >= 1;
           return (
-            <Animated.View key={g.id} entering={FadeInDown.delay(i * 70).springify().damping(18)} layout={LinearTransition}>
+            <Animated.View key={g.id} entering={FadeInDown.delay(i * 40).duration(260)} layout={LinearTransition}>
               <Card style={{ gap: 12 }}>
                 <Touch haptic={false} pressScale={0.99} onLongPress={() => confirm('Hedef silinsin mi?', `"${g.name}" silinecek.`, () => removeGoal(g.id))}>
                   <Row style={{ gap: 14 }}>

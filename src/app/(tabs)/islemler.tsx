@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Page, PageHeader } from '@/components/headers';
 import { Icon } from '@/components/icon';
@@ -164,7 +164,7 @@ export default function Transactions() {
           {groups.map(([day, list], gi) => {
             const net = totals(list).balance;
             return (
-              <Animated.View key={day} entering={FadeInDown.delay(Math.min(gi, 6) * 50)} layout={LinearTransition}>
+              <Animated.View key={day} entering={gi < 3 ? FadeInDown.delay(gi * 40).duration(240) : undefined}>
                 <SectionLabel>{`${dayLabel(list[0].date)} · ${formatMoney(net, { sign: true, decimals: false })}`}</SectionLabel>
                 <Card style={{ paddingVertical: Spacing.one }}>
                   {list.map((tx) => (
