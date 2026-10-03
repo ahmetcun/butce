@@ -85,7 +85,7 @@ export function HomeHeader<K extends string>({
             <HeaderButton icon="bellOutline" label="Ödemeler" onPress={onBell} dot={hasAlert} />
           </View>
 
-          <Segmented sections={sections} active={active} onChange={onChange} color={color} />
+          <SectionTabs sections={sections} active={active} onChange={onChange} />
 
           <Animated.View key={active} entering={enter}>
             {children}
@@ -124,43 +124,76 @@ function Avatar() {
   );
 }
 
-/** Eşit bölmeli segment kontrol; beyaz gösterge seçilene kayar. */
-function Segmented<K extends string>({
+/**
+ * Yazı tabanlı bölüm sekmeleri. Seçili olan tam opak ve yerinde, diğerleri
+ * soluk ve hafif aşağıda. Alttaki çizgi seçilen yazıya kayar ve genişliğini
+ * ona uydurur. Yalnızca transform/opaklık; 200 ms, sekme yok.
+ */
+function SectionTabs<K extends string>({
   sections,
   active,
   onChange,
-  color,
 }: {
   sections: { key: K; label: string }[];
   active: K;
   onChange: (k: K) => void;
-  color: string;
 }) {
-  const [width, setWidth] = useState(0);
-  const seg = (width - 8) / sections.length;
-  const index = sections.findIndex((s) => s.key === active);
+  const [layouts, setLayouts] = useState<Record<string, { x: number; width: number }>>({});
   const x = useSharedValue(0);
+  const w = useSharedValue(0);
 
   useEffect(() => {
-    if (seg > 0) x.set(withTiming(index * seg, Base));
-  }, [index, seg, x]);
+    const l = layouts[active];
+    if (!l) return;
+    // İlk ölçümde animasyonsuz yerleş, sonrakilerde kay
+    const first = w.get() === 0;
+    x.set(first ? l.x : withTiming(l.x, Base));
+    w.set(first ? l.width : withTiming(l.width, Base));
+  }, [active, layouts, x, w]);
 
-  const indicator = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }] }));
+  // Genişlik yerine scaleX: 100 birimlik çizgi ölçeklenir (yerleşim hesabı yok)
+  const line = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }, { scaleX: w.get() / 100 }] }));
 
   return (
-    <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)} style={styles.track}>
-      {seg > 0 ? <Animated.View style={[styles.thumb, { width: seg }, indicator]} /> : null}
-      {sections.map((s) => {
-        const on = s.key === active;
-        return (
-          <Touch key={s.key} pressScale={0.96} onPress={() => onChange(s.key)} style={styles.segment} accessibilityRole="tab" accessibilityState={{ selected: on }}>
-            <T v="small" color={on ? color : 'rgba(255,255,255,0.9)'} style={{ fontSize: 14, fontFamily: on ? FontFamily.semibold : FontFamily.medium }} numberOfLines={1}>
-              {s.label}
-            </T>
-          </Touch>
-        );
-      })}
-    </View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabs} contentContainerStyle={styles.tabsContent}>
+      {sections.map((s) => (
+        <SectionTab
+          key={s.key}
+          label={s.label}
+          on={s.key === active}
+          onPress={() => onChange(s.key)}
+          onLayout={(lx, width) =>
+            setLayouts((prev) => (prev[s.key]?.x === lx && prev[s.key]?.width === width ? prev : { ...prev, [s.key]: { x: lx, width } }))
+          }
+        />
+      ))}
+      <Animated.View pointerEvents="none" style={[styles.tabLine, line]} />
+    </ScrollView>
+  );
+}
+
+function SectionTab({ label, on, onPress, onLayout }: { label: string; on: boolean; onPress: () => void; onLayout: (x: number, width: number) => void }) {
+  const p = useSharedValue(on ? 1 : 0);
+  useEffect(() => {
+    p.set(withTiming(on ? 1 : 0, Base));
+  }, [on, p]);
+  const style = useAnimatedStyle(() => ({
+    opacity: 0.55 + 0.45 * p.get(),
+    transform: [{ translateY: 2 * (1 - p.get()) }],
+  }));
+
+  return (
+    <Touch
+      pressScale={0.95}
+      onPress={onPress}
+      onLayout={(e) => onLayout(e.nativeEvent.layout.x, e.nativeEvent.layout.width)}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: on }}
+      hitSlop={{ top: 8, bottom: 8 }}>
+      <Animated.Text style={[styles.tabText, style]} numberOfLines={1}>
+        {label}
+      </Animated.Text>
+    </Touch>
   );
 }
 
@@ -251,25 +284,28 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#FFD166',
   },
-  track: {
-    flexDirection: 'row',
+  tabs: {
     marginTop: Spacing.four,
-    padding: 4,
-    height: 46,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.16)',
+    marginHorizontal: -Spacing.three,
   },
-  thumb: {
+  tabsContent: {
+    paddingHorizontal: Spacing.three,
+    gap: 22,
+    paddingBottom: 10,
+  },
+  tabText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: FontFamily.semibold,
+  },
+  tabLine: {
     position: 'absolute',
-    top: 4,
-    bottom: 4,
-    left: 4,
-    borderRadius: 12,
+    left: 0,
+    bottom: 0,
+    width: 100,
+    height: 3,
+    borderRadius: 2,
     backgroundColor: '#fff',
-  },
-  segment: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    transformOrigin: 'left',
   },
 });

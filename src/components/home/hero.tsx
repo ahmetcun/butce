@@ -10,7 +10,7 @@ export type HeroAction = { icon: GlyphName; label: string; onPress: () => void }
 
 /**
  * Renkli alanın içi: küçük etiket, büyük tutar, bilgi hapı ve
- * 4 işlem kartı (ilki beyaz ve öne çıkan, diğerleri buzlu cam).
+ * 4 işlem butonu (ilki beyaz ve öne çıkan, diğerleri buzlu cam).
  */
 export function HeroSummary({
   label,
@@ -52,7 +52,7 @@ export function HeroSummary({
         ) : null}
       </View>
 
-      <Row style={{ marginTop: Spacing.four, gap: 10 }}>
+      <Row style={{ marginTop: Spacing.four, alignItems: 'flex-start' }}>
         {actions.map((a, i) => (
           <ActionTile key={a.label} {...a} primary={i === 0} />
         ))}
@@ -61,14 +61,15 @@ export function HeroSummary({
   );
 }
 
+/** Dış kutu yok: yalnızca ikon kutucuğu ve altında etiket. İlki beyaz kutucukla öne çıkar. */
 function ActionTile({ icon, label, onPress, primary }: HeroAction & { primary?: boolean }) {
   const color = useHeroColor();
   return (
-    <Touch onPress={onPress} pressScale={0.95} style={[styles.tile, primary ? styles.tilePrimary : styles.tileGlass]} accessibilityLabel={label}>
-      <View style={[styles.tileIcon, { backgroundColor: primary ? color : '#fff' }]}>
-        <Icon name={icon} size={20} color={primary ? '#fff' : color} />
+    <Touch onPress={onPress} pressScale={0.92} style={styles.action} accessibilityLabel={label}>
+      <View style={[styles.actionIcon, primary ? styles.actionIconPrimary : styles.actionIconGlass]}>
+        <Icon name={icon} size={24} color={primary ? color : '#fff'} weight={primary ? 'bold' : 'duotone'} />
       </View>
-      <T v="caption" color={primary ? color : '#fff'} style={{ fontSize: 12, textAlign: 'center' }} numberOfLines={1} adjustsFontSizeToFit>
+      <T v="caption" color="#fff" style={{ fontSize: 12.5, textAlign: 'center' }} numberOfLines={1} adjustsFontSizeToFit>
         {label}
       </T>
     </Touch>
@@ -86,33 +87,29 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.16)',
   },
-  tile: {
+  action: {
     flex: 1,
     alignItems: 'center',
     gap: 8,
-    paddingTop: 12,
-    paddingBottom: 10,
-    paddingHorizontal: 4,
-    borderRadius: 20,
   },
-  tilePrimary: {
+  actionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionIconPrimary: {
     backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.14,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-  tileGlass: {
-    backgroundColor: 'rgba(255,255,255,0.14)',
+  actionIconGlass: {
+    backgroundColor: 'rgba(255,255,255,0.16)',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.28)',
-  },
-  tileIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: 'rgba(255,255,255,0.3)',
   },
 });
