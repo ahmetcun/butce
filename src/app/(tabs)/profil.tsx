@@ -1,12 +1,14 @@
+import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { PillButton } from '@/components/form';
 import { Page, PageHeader } from '@/components/headers';
-import { Icon } from '@/components/icon';
+import { Icon, type GlyphName } from '@/components/icon';
 import { SortableList } from '@/components/sortable-list';
 import { Card, Chip, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { AppInfo } from '@/constants/app-info';
 import { enter } from '@/constants/motion';
 import { Accents, FontFamily, Radius, Spacing, type AccentKey } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -53,7 +55,7 @@ export default function Profile() {
     <Page header={<PageHeader title="Profil" />}>
       <FamilyStories />
 
-      {/* Akbank "Aracım / Evim" kartları gibi kesik çizgili kart */}
+      {/* Kesik çizgili bilgi kartı */}
       <Animated.View entering={enter} style={[styles.dashed, { borderColor: t.border, backgroundColor: t.surface }]}>
         <T v="title" style={{ fontSize: 20 }}>
           Bilgilerin
@@ -261,14 +263,36 @@ export default function Profile() {
           </Row>
         </Touch>
       </Card>
+
+      <SectionLabel>Hakkında</SectionLabel>
+      <Card style={{ paddingVertical: 0 }}>
+        <LinkRow icon="shield" label="Gizlilik politikası" onPress={() => WebBrowser.openBrowserAsync(AppInfo.privacyUrl)} />
+        <LinkRow icon="help" label="Yardım ve destek" onPress={() => WebBrowser.openBrowserAsync(AppInfo.supportUrl)} />
+        <LinkRow icon="mail" label="Bize yaz" last onPress={() => Linking.openURL(`mailto:${AppInfo.supportEmail}?subject=${encodeURIComponent(AppInfo.name)}`)} />
+      </Card>
       <T v="small" muted style={{ textAlign: 'center', marginTop: Spacing.four }}>
-        Veriler yalnızca bu cihazda saklanır.
+        {AppInfo.name} {AppInfo.version} · Veriler yalnızca bu cihazda saklanır.
       </T>
     </Page>
   );
 }
 
-/** Akbank "Senin için" hikâye halkaları gibi aile üyeleri. */
+function LinkRow({ icon, label, onPress, last }: { icon: GlyphName; label: string; onPress: () => void; last?: boolean }) {
+  const t = useTheme();
+  return (
+    <Touch pressScale={0.98} onPress={onPress} accessibilityRole="link">
+      <Row style={[{ paddingVertical: 18, gap: Spacing.three }, !last && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.border }]}>
+        <Icon name={icon} color={t.text} size={22} />
+        <T v="bodyBold" style={{ flex: 1 }}>
+          {label}
+        </T>
+        <Icon name="chevronRight" color={t.textMuted} size={18} />
+      </Row>
+    </Touch>
+  );
+}
+
+/** Hikâye halkaları biçiminde aile üyeleri. */
 function FamilyStories() {
   const t = useTheme();
   const members = useBudget((s) => s.members);

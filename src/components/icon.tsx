@@ -42,6 +42,9 @@ import Wallet01Icon from '@hugeicons/core-free-icons/Wallet01Icon';
 import Coins01Icon from '@hugeicons/core-free-icons/Coins01Icon';
 import Building03Icon from '@hugeicons/core-free-icons/Building03Icon';
 import GiftIcon from '@hugeicons/core-free-icons/GiftIcon';
+import HelpCircleIcon from '@hugeicons/core-free-icons/HelpCircleIcon';
+import Mail01Icon from '@hugeicons/core-free-icons/Mail01Icon';
+import SecurityCheckIcon from '@hugeicons/core-free-icons/SecurityCheckIcon';
 
 /**
  * Hugeicons (stroke rounded) tabanlı ikon seti. İkonlar tek tek içe aktarılır,
@@ -99,6 +102,9 @@ export const Glyphs = {
   extra: Coins01Icon,
   building: Building03Icon,
   gift: GiftIcon,
+  shield: SecurityCheckIcon,
+  help: HelpCircleIcon,
+  mail: Mail01Icon,
   backspace: Backspace,
 } satisfies Record<string, IconData>;
 

@@ -36,7 +36,7 @@ const variants = StyleSheet.create({
   body: { fontSize: 15, fontFamily: FontFamily.regular },
   bodyBold: { fontSize: 15, fontFamily: FontFamily.medium },
   small: { fontSize: 13, fontFamily: FontFamily.regular },
-  /** Akbank'taki "TOPLAM BAKİYE", "ÖNERİLEN HIZLI İŞLEMLER" gibi etiketler */
+  /** "TOPLAM BAKİYE" gibi büyük harfli küçük etiketler */
   label: { fontSize: 12, fontFamily: FontFamily.medium, letterSpacing: 1.6 },
   caption: { fontSize: 11, fontFamily: FontFamily.medium, letterSpacing: 0.3 },
 });
@@ -128,7 +128,7 @@ export function Touch({
   );
 }
 
-/* ------------------------------ Akbank parçaları ------------------------------ */
+/* ------------------------------ Ortak parçalar ------------------------------ */
 
 /**
  * Bölüm başlığı: tüm bölümlerde aynı tek seviye. Solda başlık (ve isteğe bağlı
@@ -367,7 +367,7 @@ export function ProgressBar({ value, color, height = 6 }: { value: number; color
   );
 }
 
-/** Akbank'taki hesap logosu gibi yuvarlak ikon. */
+/** Açık tonlu daire içinde renkli ikon. */
 export function IconBubble({ icon, color, size = 44 }: { icon: GlyphName; color: string; size?: number }) {
   return (
     <View

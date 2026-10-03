@@ -57,3 +57,14 @@ src/
   lib/              Biçimlendirme, hesaplamalar, depolama
   store/            Zustand veri deposu
 ```
+
+## Yayınlama
+
+App Store ve Google Play için gereken her şey `store/` klasöründe:
+
+- Adım adım yayın rehberi: `store/YAYIN.md`
+- Mağaza metinleri: `store/magaza-metinleri.md`
+- Form cevapları: `store/form-cevaplari.md`
+- Ekran görüntüleri: `store/gorseller/`
+
+Gizlilik politikası ve destek sayfası `docs/` klasöründe; GitHub Pages ile yayınlanıyor.

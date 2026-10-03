@@ -163,7 +163,7 @@ function Suggestions({ go }: { go: (b: Bolum) => void }) {
   );
 }
 
-/** Sık girilen harcamalar, Akbank'taki "Önerilen hızlı işlemler" gibi yuvarlak butonlar. */
+/** Sık girilen harcamalar: tek dokunuşla tekrar eklenen yuvarlak butonlar. */
 function QuickTemplates() {
   const transactions = useBudget((s) => s.transactions);
   const categories = useBudget((s) => s.categories);

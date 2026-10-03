@@ -1,7 +1,7 @@
 import '@/global.css';
 
 /**
- * Kullanıcının seçebileceği ana renkler. Akbank'ın kırmızısı yerine
+ * Kullanıcının seçebileceği ana renkler. Tek bir marka rengi yerine
  * varsayılan olarak zümrüt yeşili kullanılıyor.
  */
 export const Accents = {
@@ -98,7 +98,7 @@ export function buildTheme(scheme: Scheme, accent: AccentKey) {
 
 export type Theme = ReturnType<typeof buildTheme>;
 
-/** Akbank'ın geniş, geometrik yazı tipine yakın: Lexend */
+/** Geniş, geometrik ve okunaklı yazı tipi: Lexend */
 export const FontFamily = {
   regular: 'Lexend_400Regular',
   medium: 'Lexend_500Medium',

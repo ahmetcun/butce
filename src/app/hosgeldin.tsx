@@ -20,7 +20,7 @@ const FEATURES: { icon: GlyphName; label: string }[] = [
   { icon: 'target', label: 'Birikim\nhedefleri' },
 ];
 
-/** İlk açılış. Akbank giriş ekranı düzeni: beyaz üst, renkli alt panel. */
+/** İlk açılış: üstte karşılama ve bilgiler, altta renkli tanıtım paneli. */
 export default function Welcome() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -108,7 +108,7 @@ export default function Welcome() {
           </Animated.View>
         </View>
 
-        {/* Renkli alt panel: Akbank'taki FAST / QR / Fiyat ve Oranlar düzeni */}
+        {/* Renkli alt panel: öne çıkan özellikler */}
         <Animated.View
           entering={enter}
           style={[styles.panel, { backgroundColor: t.pastel, marginBottom: insets.bottom + Spacing.three }]}>

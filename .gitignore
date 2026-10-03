@@ -56,3 +56,12 @@ Screenshot *.png
 /*.jpg
 /*.jpeg
 /*.HEIC
+
+# Mağaza / imza anahtarları (asla commit'lenmez)
+*.p8
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+google-service-account*.json
+*service-account*.json

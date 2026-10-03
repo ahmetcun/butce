@@ -5,7 +5,6 @@ import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton, TextField } from '@/components/form';
 import type { HeroData } from '@/components/home/hero';
-import { Icon } from '@/components/icon';
 import { Card, Chip, EmptyState, ProgressBar, Row, SectionLabel, T, Touch } from '@/components/ui';
 import { enter, layout } from '@/constants/motion';
 import { Radius, Spacing } from '@/constants/theme';
@@ -66,29 +65,14 @@ export function HedeflerBody({
 
   return (
     <View>
-      {/* Akbank "Yatırım işlemleri · Yatırım yap" satırı */}
-      <Row style={{ marginTop: Spacing.four, gap: Spacing.three }}>
-        <View style={{ flex: 1 }}>
-          <T v="title" style={{ fontSize: 20 }}>
-            Birikim hedefleri
-          </T>
-          <T v="body" muted>
-            Ailece neye biriktiriyorsunuz?
-          </T>
-        </View>
-        {!adding ? (
-          <Touch onPress={() => setAdding(true)} style={[styles.outlineBtn, { borderColor: t.primary }]}>
-            <Icon name="plusCircle" size={18} color={t.primary} />
-            <T v="bodyBold" color={t.primary}>
-              Hedef ekle
-            </T>
-          </Touch>
-        ) : null}
-      </Row>
+      {/* Diğer bölümlerle aynı başlık seviyesi; ekleme kartın butonunda da var */}
+      <SectionLabel hint="Ailece neye biriktiriyorsunuz?" action={adding ? undefined : 'Ekle'} onAction={() => setAdding(true)}>
+        Birikim hedefleri
+      </SectionLabel>
 
       {adding ? (
         <Animated.View entering={enter}>
-          <Card style={{ gap: Spacing.two, marginTop: Spacing.three }}>
+          <Card style={{ gap: Spacing.two }}>
             <Row style={{ gap: 6, flexWrap: 'wrap' }}>
               {GOAL_EMOJIS.map((e) => (
                 <Touch
@@ -118,8 +102,7 @@ export function HedeflerBody({
         </Card>
       ) : null}
 
-      {goals.length > 0 ? <SectionLabel>Hedeflerin</SectionLabel> : null}
-      <View style={{ gap: 12 }}>
+      <View style={{ gap: 12, marginTop: adding ? Spacing.three : 0 }}>
         {goals.map((g, i) => {
           const ratio = g.saved / g.target;
           const done = ratio >= 1;

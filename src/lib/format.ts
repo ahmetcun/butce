@@ -12,7 +12,7 @@ export function formatMoney(value: number, opts: { decimals?: boolean; sign?: bo
   return `${prefix}${grouped}${frac ? ',' + frac : ''} TL`;
 }
 
-/** Akbank tarzı gösterim için: { int: "65", frac: ",80" } */
+/** Tam kısım kalın, küsurat soluk gösterim için: { int: "65", frac: ",80" } */
 export function splitMoney(value: number) {
   const [int, frac] = formatMoney(value).replace(' TL', '').split(',');
   return { int, frac: ',' + frac };
