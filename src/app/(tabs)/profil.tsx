@@ -11,7 +11,13 @@ import { enter } from '@/constants/motion';
 import { Accents, FontFamily, Radius, Spacing, type AccentKey } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
-import { remindersSupported, requestReminderPermission, scheduledReminderCount, sendTestNotification } from '@/lib/reminders';
+import {
+  onNotificationReceived,
+  remindersSupported,
+  requestReminderPermission,
+  scheduledReminderCount,
+  sendTestNotification,
+} from '@/lib/reminders';
 import { HomeSectionNames, useBudget, type HomeSectionKey } from '@/store/budget';
 
 const SECTION_ROW = 56;
@@ -27,7 +33,11 @@ export default function Profile() {
   const loadDemoData = useBudget((s) => s.loadDemoData);
   const bills = useBudget((s) => s.bills);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [testState, setTestState] = useState<'idle' | 'sent' | 'denied'>('idle');
+  const [testMsg, setTestMsg] = useState<{ ok: boolean; message: string } | null>(null);
+  const [received, setReceived] = useState<string[]>([]);
+
+  // Test bildirimi uygulamaya ulaştı mı? (banner görünmese bile burada yazar)
+  useEffect(() => onNotificationReceived((title) => setReceived((r) => [...r, title])), []);
   const [scheduled, setScheduled] = useState<number | null>(null);
 
   // Planlı hatırlatma sayısı (senkronizasyon yarım saniye geciktiği için biraz bekleyerek oku)
@@ -175,18 +185,20 @@ export default function Profile() {
           <View style={{ gap: 8 }}>
             <PillButton
               outline
-              label={testState === 'sent' ? 'Gönderildi · 5 sn içinde gelecek' : 'Test bildirimi gönder'}
+              label="Test bildirimi gönder"
               onPress={async () => {
-                const ok = await sendTestNotification(5);
-                setTestState(ok ? 'sent' : 'denied');
-                if (ok) setTimeout(() => setTestState('idle'), 6000);
+                setReceived([]);
+                setTestMsg(await sendTestNotification(5));
               }}
             />
-            <T v="small" muted style={{ textAlign: 'center' }}>
-              {testState === 'denied'
-                ? 'Bildirim izni yok. Telefonun Ayarlar > Bildirimler kısmından izin ver.'
-                : 'Bastıktan sonra uygulamayı arka plana alıp kilit ekranında da görebilirsin.'}
+            <T v="small" color={testMsg && !testMsg.ok ? t.expense : t.textMuted} style={{ textAlign: 'center' }}>
+              {testMsg ? testMsg.message : 'Biri hemen, biri 5 sn sonra gelir. İkincisi için uygulamayı arka plana al.'}
             </T>
+            {received.map((r, i) => (
+              <T key={i} v="small" color={t.income} style={{ textAlign: 'center' }}>
+                ✓ Uygulamaya ulaştı: {r}
+              </T>
+            ))}
           </View>
         ) : null}
       </Card>

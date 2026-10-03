@@ -40,14 +40,12 @@ export function HomeHeader<K extends string>({
       <View style={styles.topRow}>
         <Avatar />
         <View style={{ flex: 1 }}>
-          <T v="heading" style={{ fontSize: 18 }} numberOfLines={1}>
+          <T v="small" muted numberOfLines={1}>
+            {familyName ? `${familyName} ailesi` : 'Hoş geldin'}
+          </T>
+          <T v="title" style={{ fontSize: 20 }} numberOfLines={1}>
             Merhaba{firstName ? `, ${firstName}` : ''}!
           </T>
-          {familyName ? (
-            <T v="small" muted numberOfLines={1}>
-              {familyName} ailesi
-            </T>
-          ) : null}
         </View>
         <IconButton icon="bellOutline" label="Ödemeler" onPress={onBell} dot={hasAlert} />
         <IconButton icon="search" label="Ara" onPress={() => router.push('/islemler?ara=1')} />
@@ -262,11 +260,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: Spacing.three,
-    gap: 24,
-    paddingBottom: 10,
+    gap: 26,
+    paddingBottom: 8,
   },
   tabText: {
-    fontSize: 17,
+    fontSize: 15,
     fontFamily: FontFamily.semibold,
   },
   tabLine: {
@@ -274,7 +272,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 100,
-    height: 3,
+    height: 2.5,
     borderRadius: 2,
     transformOrigin: 'left',
   },

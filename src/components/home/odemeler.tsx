@@ -112,10 +112,10 @@ export function OdemelerBody({ adding, setAdding }: { adding: boolean; setAdding
         </Animated.View>
       ) : null}
 
-      <SectionLabel action={adding ? undefined : '+ Ekle'} onAction={() => setAdding(true)}>
-        Düzenli ödemeler
+      <SectionLabel action={adding ? undefined : 'Ekle'} onAction={() => setAdding(true)}>
+        Faturalar ve ödemeler
       </SectionLabel>
-      <ListCard title="Faturalar ve ödemeler" meta={`${bills.length} ödeme`}>
+      <ListCard>
         {sorted.length === 0 ? (
           <EmptyState icon="calendar" text="Kira, fatura, kredi kartı gibi her ay tekrar eden ödemelerini ekle; günü gelince hatırlatalım." />
         ) : (

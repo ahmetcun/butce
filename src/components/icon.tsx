@@ -1,285 +1,116 @@
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
+
+import Home01Icon from '@hugeicons/core-free-icons/Home01Icon';
+import LeftToRightListBulletIcon from '@hugeicons/core-free-icons/LeftToRightListBulletIcon';
+import ArrowDataTransferHorizontalIcon from '@hugeicons/core-free-icons/ArrowDataTransferHorizontalIcon';
+import AddCircleIcon from '@hugeicons/core-free-icons/AddCircleIcon';
+import UserIcon from '@hugeicons/core-free-icons/UserIcon';
+import UserGroupIcon from '@hugeicons/core-free-icons/UserGroupIcon';
+import Search01Icon from '@hugeicons/core-free-icons/Search01Icon';
+import Notification01Icon from '@hugeicons/core-free-icons/Notification01Icon';
+import Add01Icon from '@hugeicons/core-free-icons/Add01Icon';
+import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
+import Tick02Icon from '@hugeicons/core-free-icons/Tick02Icon';
+import ArrowRight01Icon from '@hugeicons/core-free-icons/ArrowRight01Icon';
+import ArrowDown01Icon from '@hugeicons/core-free-icons/ArrowDown01Icon';
+import ArrowUpRight01Icon from '@hugeicons/core-free-icons/ArrowUpRight01Icon';
+import ArrowDownLeft01Icon from '@hugeicons/core-free-icons/ArrowDownLeft01Icon';
+import MoreHorizontalIcon from '@hugeicons/core-free-icons/MoreHorizontalIcon';
+import DragDropVerticalIcon from '@hugeicons/core-free-icons/DragDropVerticalIcon';
+import Delete02Icon from '@hugeicons/core-free-icons/Delete02Icon';
+import SparklesIcon from '@hugeicons/core-free-icons/SparklesIcon';
+import ViewIcon from '@hugeicons/core-free-icons/ViewIcon';
+import ViewOffSlashIcon from '@hugeicons/core-free-icons/ViewOffSlashIcon';
+import PieChartIcon from '@hugeicons/core-free-icons/PieChartIcon';
+import Calendar03Icon from '@hugeicons/core-free-icons/Calendar03Icon';
+import Target02Icon from '@hugeicons/core-free-icons/Target02Icon';
+import PiggyBankIcon from '@hugeicons/core-free-icons/PiggyBankIcon';
+import FlashIcon from '@hugeicons/core-free-icons/FlashIcon';
+import ShoppingBasket01Icon from '@hugeicons/core-free-icons/ShoppingBasket01Icon';
+import Invoice01Icon from '@hugeicons/core-free-icons/Invoice01Icon';
+import Home09Icon from '@hugeicons/core-free-icons/Home09Icon';
+import Car01Icon from '@hugeicons/core-free-icons/Car01Icon';
+import Restaurant01Icon from '@hugeicons/core-free-icons/Restaurant01Icon';
+import Medicine02Icon from '@hugeicons/core-free-icons/Medicine02Icon';
+import School01Icon from '@hugeicons/core-free-icons/School01Icon';
+import TShirtIcon from '@hugeicons/core-free-icons/TShirtIcon';
+import BabyBottleIcon from '@hugeicons/core-free-icons/BabyBottleIcon';
+import GameController03Icon from '@hugeicons/core-free-icons/GameController03Icon';
+import CreditCardIcon from '@hugeicons/core-free-icons/CreditCardIcon';
+import GridViewIcon from '@hugeicons/core-free-icons/GridViewIcon';
+import Wallet01Icon from '@hugeicons/core-free-icons/Wallet01Icon';
+import Coins01Icon from '@hugeicons/core-free-icons/Coins01Icon';
+import Building03Icon from '@hugeicons/core-free-icons/Building03Icon';
+import GiftIcon from '@hugeicons/core-free-icons/GiftIcon';
 
 /**
- * Uygulamaya özel çizilmiş ikon seti.
- * 24×24 ızgara, 1.8 kalınlık, yuvarlak uçlar. "f" ve "fc" katmanları
- * ikonun ikinci tonudur (aynı rengin yarı saydamı).
+ * Hugeicons (stroke rounded) tabanlı ikon seti. İkonlar tek tek içe aktarılır,
+ * böylece pakete yalnızca kullanılanlar girer. Uygulama içinde hep kısa
+ * adlarla (`home`, `cart`...) kullanılır; seti değiştirmek için bu dosya yeterli.
  */
-type Drawing = {
-  /** Çizgi yolları */
-  s?: string[];
-  /** Çizgi daireler [cx, cy, r] */
-  c?: [number, number, number][];
-  /** İkinci ton (dolgu) yolları */
-  f?: string[];
-  /** İkinci ton (dolgu) daireler */
-  fc?: [number, number, number][];
-  /** Tam dolu küçük noktalar */
-  d?: [number, number, number][];
-};
+type IconData = readonly (readonly [string, { readonly [key: string]: string | number }])[];
 
-const plusCircle: Drawing = {
-  fc: [[12, 12, 8.5]],
-  c: [[12, 12, 8.5]],
-  s: ['M12 8.5v7', 'M8.5 12h7'],
-};
+/** Hugeicons'ta karşılığı olmayan tuş takımı silme ikonu, aynı çizgi diliyle. */
+const Backspace: IconData = [
+  ['path', { d: 'M8.6 5h9.9A2.5 2.5 0 0 1 21 7.5v9a2.5 2.5 0 0 1-2.5 2.5H8.6a2 2 0 0 1-1.5-.7L3.2 13.3a2 2 0 0 1 0-2.6l3.9-5a2 2 0 0 1 1.5-.7Z', stroke: 'currentColor', strokeWidth: '1.5', strokeLinejoin: 'round', key: '0' }],
+  ['path', { d: 'M11.5 9.5l5 5M16.5 9.5l-5 5', stroke: 'currentColor', strokeWidth: '1.5', strokeLinecap: 'round', key: '1' }],
+];
 
 export const Glyphs = {
-  // ---------- Gezinme ----------
-  home: {
-    f: ['M5.5 10.2 12 4.6l6.5 5.6v8.3c0 .8-.7 1.5-1.5 1.5h-2.5v-4.5a1.5 1.5 0 0 0-1.5-1.5h-2a1.5 1.5 0 0 0-1.5 1.5V20H7c-.8 0-1.5-.7-1.5-1.5z'],
-    s: [
-      'M3.5 11 12 3.75 20.5 11',
-      'M5.5 9.5v9A1.5 1.5 0 0 0 7 20h10a1.5 1.5 0 0 0 1.5-1.5v-9',
-      'M9.5 20v-4.5a1.5 1.5 0 0 1 1.5-1.5h2a1.5 1.5 0 0 1 1.5 1.5V20',
-    ],
-  },
-  list: {
-    f: ['M6 3.5h12a1 1 0 0 1 1 1v15.6a.4.4 0 0 1-.63.33L16.5 19.2l-2.25 1.5L12 19.2l-2.25 1.5-2.25-1.5-1.87 1.23A.4.4 0 0 1 5 20.1V4.5a1 1 0 0 1 1-1Z'],
-    s: [
-      'M6 3.5h12a1 1 0 0 1 1 1v15.6a.4.4 0 0 1-.63.33L16.5 19.2l-2.25 1.5L12 19.2l-2.25 1.5-2.25-1.5-1.87 1.23A.4.4 0 0 1 5 20.1V4.5a1 1 0 0 1 1-1Z',
-      'M8.5 8h7',
-      'M8.5 11.5h7',
-      'M8.5 15h4',
-    ],
-  },
-  swap: { s: ['M4 8h15', 'M15.5 4.5 19 8l-3.5 3.5', 'M20 16H5', 'M8.5 12.5 5 16l3.5 3.5'] },
-  plusCircle,
-  person: {
-    fc: [[12, 8, 3.75]],
-    c: [[12, 8, 3.75]],
-    s: ['M4.75 20c.8-3.5 3.6-5.5 7.25-5.5s6.45 2 7.25 5.5'],
-  },
-  family: {
-    fc: [[12, 8, 3]],
-    c: [
-      [12, 8, 3],
-      [5.5, 9.5, 2.25],
-      [18.5, 9.5, 2.25],
-    ],
-    s: ['M6.5 19c.6-2.9 2.8-4.5 5.5-4.5s4.9 1.6 5.5 4.5', 'M2.5 17.5c.3-1.9 1.5-3.1 3.2-3.4', 'M21.5 17.5c-.3-1.9-1.5-3.1-3.2-3.4'],
-  },
-  search: { fc: [[10.5, 10.5, 6.5]], c: [[10.5, 10.5, 6.5]], s: ['M15.5 15.5 20 20'] },
-  bellOutline: {
-    f: ['M6.5 16v-5a5.5 5.5 0 0 1 11 0v5l1.5 2h-14z'],
-    s: ['M6.5 16v-5a5.5 5.5 0 0 1 11 0v5l1.5 2h-14z', 'M10 20.75h4', 'M3.5 9a8 8 0 0 1 2.3-4.3', 'M20.5 9a8 8 0 0 0-2.3-4.3'],
-  },
-
-  // ---------- Arayüz işaretleri ----------
-  plus: { s: ['M12 5v14', 'M5 12h14'] },
-  close: { s: ['M6.5 6.5l11 11', 'M17.5 6.5l-11 11'] },
-  check: { s: ['M5 12.5l4.5 4.5L19 7.5'] },
-  chevronRight: { s: ['M9.5 5.5 16 12l-6.5 6.5'] },
-  chevronDown: { s: ['M5.5 9.5 12 16l6.5-6.5'] },
-  arrowUp: { s: ['M7 17 17 7', 'M8.5 7H17v8.5'] },
-  arrowDown: { s: ['M17 7 7 17', 'M15.5 17H7V8.5'] },
-  dots: {
-    d: [
-      [6, 12, 1.6],
-      [12, 12, 1.6],
-      [18, 12, 1.6],
-    ],
-  },
-  grip: {
-    d: [
-      [9, 6, 1.5],
-      [15, 6, 1.5],
-      [9, 12, 1.5],
-      [15, 12, 1.5],
-      [9, 18, 1.5],
-      [15, 18, 1.5],
-    ],
-  },
-  backspace: {
-    f: ['M8.4 5H19a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 19 19H8.4a1.5 1.5 0 0 1-1.1-.5L3 12l4.3-6.5a1.5 1.5 0 0 1 1.1-.5Z'],
-    s: ['M8.4 5H19a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 19 19H8.4a1.5 1.5 0 0 1-1.1-.5L3 12l4.3-6.5a1.5 1.5 0 0 1 1.1-.5Z', 'M11 9.5l5 5', 'M16 9.5l-5 5'],
-  },
-  trash: {
-    f: ['M6.5 7h11l-.85 12.1a1.5 1.5 0 0 1-1.5 1.4h-6.3a1.5 1.5 0 0 1-1.5-1.4z'],
-    s: [
-      'M6.5 7h11l-.85 12.1a1.5 1.5 0 0 1-1.5 1.4h-6.3a1.5 1.5 0 0 1-1.5-1.4z',
-      'M4 7h16',
-      'M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2',
-      'M10.25 11v5.5',
-      'M13.75 11v5.5',
-    ],
-  },
-  sparkles: {
-    f: ['M10 3.5l1.6 4.4a2 2 0 0 0 1.2 1.2l4.4 1.6-4.4 1.6a2 2 0 0 0-1.2 1.2L10 17.9l-1.6-4.4a2 2 0 0 0-1.2-1.2L2.8 10.7l4.4-1.6a2 2 0 0 0 1.2-1.2z'],
-    s: [
-      'M10 3.5l1.6 4.4a2 2 0 0 0 1.2 1.2l4.4 1.6-4.4 1.6a2 2 0 0 0-1.2 1.2L10 17.9l-1.6-4.4a2 2 0 0 0-1.2-1.2L2.8 10.7l4.4-1.6a2 2 0 0 0 1.2-1.2z',
-      'M18.5 14.25l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z',
-    ],
-  },
-
-  eye: {
-    f: ['M2.75 12c2.1-4.1 5.3-6.4 9.25-6.4s7.15 2.3 9.25 6.4c-2.1 4.1-5.3 6.4-9.25 6.4S4.85 16.1 2.75 12z'],
-    s: ['M2.75 12c2.1-4.1 5.3-6.4 9.25-6.4s7.15 2.3 9.25 6.4c-2.1 4.1-5.3 6.4-9.25 6.4S4.85 16.1 2.75 12z'],
-    c: [[12, 12, 3]],
-  },
-  eyeOff: {
-    s: [
-      'M9.9 5.85A9.6 9.6 0 0 1 12 5.6c3.95 0 7.15 2.3 9.25 6.4a14 14 0 0 1-2.4 3.35',
-      'M15.9 17.4A9.2 9.2 0 0 1 12 18.4c-3.95 0-7.15-2.3-9.25-6.4a13.6 13.6 0 0 1 3.6-4.5',
-      'M9.9 9.9a3 3 0 0 0 4.2 4.2',
-      'M4 4l16 16',
-    ],
-  },
-
-  // ---------- Bütçe kavramları ----------
-  chart: {
-    f: ['M13.5 3.1a7.4 7.4 0 0 1 7.4 7.4h-7.4z'],
-    s: ['M10.5 5.1A8.4 8.4 0 1 0 18.9 13.5H10.5z', 'M13.5 3.1a7.4 7.4 0 0 1 7.4 7.4h-7.4z'],
-  },
-  calendar: {
-    f: ['M5.5 5h13A1.5 1.5 0 0 1 20 6.5v3H4v-3A1.5 1.5 0 0 1 5.5 5z'],
-    s: ['M5.5 5h13A1.5 1.5 0 0 1 20 6.5v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5z', 'M4 9.5h16', 'M8 3v4', 'M16 3v4'],
-    d: [
-      [8.5, 13.25, 1],
-      [12, 13.25, 1],
-      [15.5, 13.25, 1],
-      [8.5, 16.75, 1],
-      [12, 16.75, 1],
-    ],
-  },
-  target: {
-    fc: [[12, 12, 5]],
-    c: [
-      [12, 12, 8.5],
-      [12, 12, 5],
-    ],
-    d: [[12, 12, 1.75]],
-  },
-  piggy: {
-    f: ['M5 7c0-1.4 3.1-2.5 7-2.5S19 5.6 19 7s-3.1 2.5-7 2.5S5 8.4 5 7z'],
-    s: [
-      'M5 7c0-1.4 3.1-2.5 7-2.5S19 5.6 19 7s-3.1 2.5-7 2.5S5 8.4 5 7z',
-      'M5 7v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V7',
-      'M5 12v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5',
-    ],
-  },
-  bolt: {
-    f: ['M13.5 3 5.5 13.5h6l-1 7.5 8-10.5h-6z'],
-    s: ['M13.5 3 5.5 13.5h6l-1 7.5 8-10.5h-6z'],
-  },
-
-  // ---------- Kategoriler ----------
-  cart: {
-    f: ['M6.1 8H20l-1.4 6.75a1.5 1.5 0 0 1-1.46 1.15H8.77a1.5 1.5 0 0 1-1.47-1.2z'],
-    s: ['M3 4.5h2.2l2.1 10.2a1.5 1.5 0 0 0 1.47 1.2h8.36a1.5 1.5 0 0 0 1.46-1.15L20 8H6'],
-    c: [
-      [9.5, 19.5, 1.25],
-      [16.5, 19.5, 1.25],
-    ],
-  },
-  bill: {
-    f: ['M6.5 3.5h7.5l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5z'],
-    s: ['M6.5 3.5h7.5l4.5 4.5v11a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5z', 'M14 3.5V8h4.5', 'M8.5 12.5h7', 'M8.5 16h4.5'],
-  },
-  house: {
-    f: ['M5 9.6 12 4l7 5.6v9.9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5z'],
-    s: ['M3 11.2 12 4l9 7.2', 'M5 9.6v9.9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V9.6', 'M10 20v-5h4v5', 'M16 5.5v2'],
-  },
-  car: {
-    f: ['M4 12.5 5.6 8a2 2 0 0 1 1.9-1.4h9a2 2 0 0 1 1.9 1.4l1.6 4.5v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z'],
-    s: ['M4 12.5 5.6 8a2 2 0 0 1 1.9-1.4h9a2 2 0 0 1 1.9 1.4l1.6 4.5v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z', 'M4 12.5h16', 'M6.5 17.5v2', 'M17.5 17.5v2'],
-    d: [
-      [7.5, 14.75, 1],
-      [16.5, 14.75, 1],
-    ],
-  },
-  food: {
-    f: ['M16.5 3.5c-1.9.9-3 3-3 5.6V13h3z'],
-    s: ['M7 3.5V9a2 2 0 0 0 4 0V3.5', 'M9 11v9.5', 'M16.5 20.5v-17c-1.9.9-3 3-3 5.6V13h3'],
-  },
-  health: {
-    f: ['M5 7h14a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 19 20H5a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 5 7z'],
-    s: ['M5 7h14a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 19 20H5a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 5 7z', 'M9 7V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V7', 'M12 10.5v6', 'M9 13.5h6'],
-  },
-  school: {
-    f: ['M12 4.5 2.5 9 12 13.5 21.5 9z'],
-    s: ['M12 4.5 2.5 9 12 13.5 21.5 9z', 'M6.5 11v4.5c1.5 1.6 3.3 2.5 5.5 2.5s4-.9 5.5-2.5V11', 'M21.5 9v5'],
-  },
-  clothes: {
-    f: ['M8.5 4 4 6.5l-1.25 4 3 1.25.75-1.25v9a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-9l.75 1.25 3-1.25L20 6.5 15.5 4c-.4 1.4-1.8 2.5-3.5 2.5S8.9 5.4 8.5 4z'],
-    s: ['M8.5 4 4 6.5l-1.25 4 3 1.25.75-1.25v9a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5v-9l.75 1.25 3-1.25L20 6.5 15.5 4c-.4 1.4-1.8 2.5-3.5 2.5S8.9 5.4 8.5 4z'],
-  },
-  child: {
-    fc: [[12, 12.5, 8]],
-    c: [[12, 12.5, 8]],
-    s: ['M9.5 15.25c.7.6 1.5.9 2.5.9s1.8-.3 2.5-.9', 'M12 4.5c-1.2 0-2 .8-2 1.8 0 .8.6 1.4 1.4 1.4'],
-    d: [
-      [9.25, 11.5, 1],
-      [14.75, 11.5, 1],
-    ],
-  },
-  fun: {
-    f: ['M7.5 7h9a4.5 4.5 0 0 1 4.4 3.6l.9 4.6a2.3 2.3 0 0 1-4 1.9L16 15H8l-1.8 2.1a2.3 2.3 0 0 1-4-1.9l.9-4.6A4.5 4.5 0 0 1 7.5 7z'],
-    s: ['M7.5 7h9a4.5 4.5 0 0 1 4.4 3.6l.9 4.6a2.3 2.3 0 0 1-4 1.9L16 15H8l-1.8 2.1a2.3 2.3 0 0 1-4-1.9l.9-4.6A4.5 4.5 0 0 1 7.5 7z', 'M7.5 9.75v3', 'M6 11.25h3'],
-    d: [
-      [15.5, 10.25, 1],
-      [17.5, 12.25, 1],
-    ],
-  },
-  card: {
-    f: ['M5 5.5h14A1.5 1.5 0 0 1 20.5 7v3h-17V7A1.5 1.5 0 0 1 5 5.5z'],
-    s: ['M5 5.5h14A1.5 1.5 0 0 1 20.5 7v10a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 17V7A1.5 1.5 0 0 1 5 5.5z', 'M3.5 10h17', 'M7 14.5h3'],
-  },
-  more: {
-    fc: [[12, 12, 8.5]],
-    c: [[12, 12, 8.5]],
-    d: [
-      [8.25, 12, 1.1],
-      [12, 12, 1.1],
-      [15.75, 12, 1.1],
-    ],
-  },
-  salary: {
-    fc: [[12, 12, 2.5]],
-    s: [
-      'M4 6.5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z',
-      'M3 9.5a3 3 0 0 0 3-3',
-      'M18 6.5a3 3 0 0 0 3 3',
-      'M21 14.5a3 3 0 0 0-3 3',
-      'M6 17.5a3 3 0 0 0-3-3',
-    ],
-    c: [[12, 12, 2.5]],
-  },
-  extra: plusCircle,
-  building: {
-    f: ['M5 4.5h9a1 1 0 0 1 1 1V20H4V5.5a1 1 0 0 1 1-1z'],
-    s: ['M5 4.5h9a1 1 0 0 1 1 1V20H4V5.5a1 1 0 0 1 1-1z', 'M15 9.5h4a1 1 0 0 1 1 1V20', 'M2.5 20h19'],
-    d: [
-      [7.5, 8, 0.9],
-      [11.5, 8, 0.9],
-      [7.5, 11.5, 0.9],
-      [11.5, 11.5, 0.9],
-      [7.5, 15, 0.9],
-      [11.5, 15, 0.9],
-      [17.5, 13, 0.9],
-      [17.5, 16.5, 0.9],
-    ],
-  },
-  gift: {
-    f: ['M4.5 11.5h15V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19z'],
-    s: [
-      'M4 8h16a.5.5 0 0 1 .5.5V11a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V8.5A.5.5 0 0 1 4 8z',
-      'M4.5 11.5V19A1.5 1.5 0 0 0 6 20.5h12a1.5 1.5 0 0 0 1.5-1.5v-7.5',
-      'M12 8v12.5',
-      'M12 8c-1-2.5-2.6-3.8-4-3.5-1.2.3-1.3 2 0 2.8.9.6 2.5.7 4 .7',
-      'M12 8c1-2.5 2.6-3.8 4-3.5 1.2.3 1.3 2 0 2.8-.9.6-2.5.7-4 .7',
-    ],
-  },
-} satisfies Record<string, Drawing>;
+  home: Home01Icon,
+  list: LeftToRightListBulletIcon,
+  swap: ArrowDataTransferHorizontalIcon,
+  plusCircle: AddCircleIcon,
+  person: UserIcon,
+  family: UserGroupIcon,
+  search: Search01Icon,
+  bellOutline: Notification01Icon,
+  plus: Add01Icon,
+  close: Cancel01Icon,
+  check: Tick02Icon,
+  chevronRight: ArrowRight01Icon,
+  chevronDown: ArrowDown01Icon,
+  arrowUp: ArrowUpRight01Icon,
+  arrowDown: ArrowDownLeft01Icon,
+  dots: MoreHorizontalIcon,
+  grip: DragDropVerticalIcon,
+  trash: Delete02Icon,
+  sparkles: SparklesIcon,
+  eye: ViewIcon,
+  eyeOff: ViewOffSlashIcon,
+  chart: PieChartIcon,
+  calendar: Calendar03Icon,
+  target: Target02Icon,
+  piggy: PiggyBankIcon,
+  bolt: FlashIcon,
+  cart: ShoppingBasket01Icon,
+  bill: Invoice01Icon,
+  house: Home09Icon,
+  car: Car01Icon,
+  food: Restaurant01Icon,
+  health: Medicine02Icon,
+  school: School01Icon,
+  clothes: TShirtIcon,
+  child: BabyBottleIcon,
+  fun: GameController03Icon,
+  card: CreditCardIcon,
+  more: GridViewIcon,
+  salary: Wallet01Icon,
+  extra: Coins01Icon,
+  building: Building03Icon,
+  gift: GiftIcon,
+  backspace: Backspace,
+} satisfies Record<string, IconData>;
 
 export type GlyphName = keyof typeof Glyphs;
 
 /**
- * duotone: çizgi + yarı saydam ikinci ton (varsayılan)
- * bold: daha kalın çizgi, daha belirgin ikinci ton (seçili durumlar için)
- * line: yalnızca çizgi
+ * line: ince (1.5) · duotone: varsayılan (1.7) · bold: seçili durumlar için kalın (2.1)
+ * (Ad geriye dönük uyumluluk için duotone; set tek tonlu.)
  */
 export type IconWeight = 'duotone' | 'bold' | 'line';
+
+const STROKE: Record<IconWeight, number> = { line: 1.5, duotone: 1.7, bold: 2.1 };
 
 export function Icon({
   name,
@@ -292,24 +123,22 @@ export function Icon({
   color: string;
   weight?: IconWeight;
 }) {
-  const g: Drawing = Glyphs[name];
-  const stroke = weight === 'bold' ? 2.1 : 1.8;
-  const tone = weight === 'line' ? 0 : weight === 'bold' ? 0.35 : 0.2;
+  const data: IconData = Glyphs[name];
+  const scale = STROKE[weight] / 1.5;
 
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      {tone > 0 && g.f?.map((p, i) => <Path key={`f${i}`} d={p} fill={color} fillOpacity={tone} />)}
-      {tone > 0 &&
-        g.fc?.map(([cx, cy, r], i) => <Circle key={`fc${i}`} cx={cx} cy={cy} r={r} fill={color} fillOpacity={tone} />)}
-      {g.s?.map((p, i) => (
-        <Path key={`s${i}`} d={p} stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" />
-      ))}
-      {g.c?.map(([cx, cy, r], i) => (
-        <Circle key={`c${i}`} cx={cx} cy={cy} r={r} stroke={color} strokeWidth={stroke} />
-      ))}
-      {g.d?.map(([cx, cy, r], i) => (
-        <Circle key={`d${i}`} cx={cx} cy={cy} r={weight === 'bold' ? r * 1.1 : r} fill={color} />
-      ))}
+      {data.map(([tag, { key, ...a }]) => {
+        const p = {
+          ...a,
+          stroke: a.stroke === 'currentColor' ? color : a.stroke,
+          fill: a.fill === 'currentColor' ? color : (a.fill ?? 'none'),
+          strokeWidth: a.strokeWidth ? Number(a.strokeWidth) * scale : undefined,
+        } as Record<string, string | number | undefined>;
+        if (tag === 'circle') return <Circle key={key} {...p} />;
+        if (tag === 'ellipse') return <Ellipse key={key} {...p} />;
+        return <Path key={key} {...(p as { d: string })} />;
+      })}
     </Svg>
   );
 }

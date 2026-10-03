@@ -52,8 +52,8 @@ export function ButceBody({ editing, setEditing }: { editing: string | null; set
 
   return (
     <View>
-      <SectionLabel>Kategori limitleri</SectionLabel>
-      <ListCard title="Gider kategorileri" meta={`${rows.length} kategori`}>
+      <SectionLabel hint="Limit koymak için kategoriye dokun">Kategori limitleri</SectionLabel>
+      <ListCard>
         {rows.map(({ category: c, spent }, i) => {
           const isEditing = editing === c.id;
           return (

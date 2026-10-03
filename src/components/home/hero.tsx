@@ -48,34 +48,36 @@ export function BalanceCard({ data, pastel }: { data: HeroData; pastel: string }
         </Touch>
 
         <Animated.View key={data.label} entering={enter} style={{ alignItems: 'center' }}>
-          <T v="heading" color={t.onPastel} style={{ fontSize: 18 }}>
+          {/* Etiket küçük ve soluk: kartta öne çıkan tek şey tutar */}
+          <T v="bodyBold" color={t.onPastel} style={{ opacity: 0.65 }}>
             {data.label}
           </T>
-          {data.pill ? (
-            <Touch onPress={data.onPill} disabled={!data.onPill} style={styles.sub}>
-              <T v="small" color={t.onPastel} style={{ opacity: 0.7 }}>
-                {data.pill.text}
-              </T>
-              {data.onPill ? <Icon name="chevronDown" size={12} color={t.onPastel} /> : null}
-            </Touch>
-          ) : null}
-          <View style={{ marginTop: 6 }}>
+          <View style={{ marginTop: 4 }}>
             <Amount value={data.value} color={t.onPastel} hidden={hidden} size={44} />
           </View>
+          {data.pill ? (
+            <Touch onPress={data.onPill} disabled={!data.onPill} style={[styles.sub, { backgroundColor: 'rgba(255,255,255,0.55)' }]}>
+              <Icon name={data.pill.icon} size={14} color={t.onPastel} weight="line" />
+              <T v="small" color={t.onPastel} style={{ fontWeight: '500' }}>
+                {data.pill.text}
+              </T>
+              {data.onPill ? <Icon name="chevronRight" size={12} color={t.onPastel} weight="bold" /> : null}
+            </Touch>
+          ) : null}
         </Animated.View>
       </Animated.View>
 
       <Row style={styles.actions}>
         {data.actions.map((a, i) => (
-          <Row key={a.label} style={{ flex: 1 }}>
-            {i > 0 ? <View style={[styles.divider, { backgroundColor: t.border }]} /> : null}
-            <Touch onPress={a.onPress} pressScale={0.92} style={styles.action} accessibilityLabel={a.label}>
-              <Icon name={a.icon} size={24} color={t.text} weight="line" />
-              <T v="small" muted numberOfLines={1} adjustsFontSizeToFit>
-                {a.label}
-              </T>
-            </Touch>
-          </Row>
+          <Touch key={a.label} onPress={a.onPress} pressScale={0.92} style={styles.action} accessibilityLabel={a.label}>
+            {/* İlk eylem birincil: siyah daire; diğerleri gri */}
+            <View style={[styles.actionCircle, { backgroundColor: i === 0 ? t.ink : t.surfaceAlt }]}>
+              <Icon name={a.icon} size={22} color={i === 0 ? t.onInk : t.text} weight="bold" />
+            </View>
+            <T v="small" numberOfLines={1} adjustsFontSizeToFit style={{ fontWeight: '500' }}>
+              {a.label}
+            </T>
+          </Touch>
         ))}
       </Row>
     </View>
@@ -107,19 +109,26 @@ const styles = StyleSheet.create({
   sub: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 4,
+    gap: 6,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radius.pill,
   },
   actions: {
-    paddingVertical: 14,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
-  divider: {
-    width: StyleSheet.hairlineWidth,
-    height: 36,
+  actionCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   action: {
     flex: 1,
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
 });

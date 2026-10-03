@@ -92,21 +92,42 @@ export async function syncBillReminders(bills: Bill[], settings: Settings) {
   }
 }
 
+export type TestResult = { ok: boolean; message: string };
+
 /**
- * Bildirimlerin çalıştığını denemek için birkaç saniye sonra bir bildirim gönderir.
- * İzin yoksa ister; izin verilmezse false döner.
+ * Bildirimlerin çalıştığını dener: biri hemen, biri birkaç saniye sonra.
+ * Sorun olursa nedenini metin olarak döndürür ki ekranda gösterilebilsin.
  */
-export async function sendTestNotification(seconds = 5) {
-  if (!(await requestReminderPermission())) return false;
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: 'Test bildirimi 🔔',
+export async function sendTestNotification(seconds = 5): Promise<TestResult> {
+  try {
+    if (!(await requestReminderPermission())) {
+      const p = await Notifications.getPermissionsAsync();
+      return { ok: false, message: `Bildirim izni yok (durum: ${p.status}). Ayarlar > Bildirimler > Expo Go'dan izin ver.` };
+    }
+    const content = {
       body: 'Bildirimler çalışıyor! Fatura hatırlatmaları bu şekilde gelecek.',
       data: { kind: 'test', url: '/?bolum=odemeler' },
-    },
-    trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds, channelId: CHANNEL },
-  });
-  return true;
+    };
+    // Hemen: uygulama açıkken üstte banner olarak görünmeli
+    await Notifications.scheduleNotificationAsync({
+      content: { title: 'Test bildirimi 🔔', ...content },
+      trigger: Platform.OS === 'android' ? { channelId: CHANNEL } : null,
+    });
+    // Gecikmeli: uygulamayı arka plana alınca kilit ekranında görünmeli
+    await Notifications.scheduleNotificationAsync({
+      content: { title: `Test bildirimi (${seconds} sn) 🔔`, ...content },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds, channelId: CHANNEL },
+    });
+    return { ok: true, message: `Biri hemen, biri ${seconds} saniye sonra gelecek.` };
+  } catch (e) {
+    return { ok: false, message: `Hata: ${e instanceof Error ? e.message : String(e)}` };
+  }
+}
+
+/** Uygulama açıkken bir bildirim ulaştığında haber verir (testin gerçekten geldiğini görmek için). */
+export function onNotificationReceived(handler: (title: string) => void) {
+  const sub = Notifications.addNotificationReceivedListener((n) => handler(n.request.content.title ?? ''));
+  return () => sub.remove();
 }
 
 /** Şu an planlanmış fatura hatırlatması sayısı. */

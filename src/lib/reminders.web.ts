@@ -9,8 +9,14 @@ export async function requestReminderPermission() {
 
 export async function syncBillReminders(_bills: Bill[], _settings: Settings) {}
 
-export async function sendTestNotification(_seconds = 5) {
-  return false;
+export type TestResult = { ok: boolean; message: string };
+
+export async function sendTestNotification(_seconds = 5): Promise<TestResult> {
+  return { ok: false, message: 'Web tarayıcısında bildirim yok; telefonda Expo Go ile dene.' };
+}
+
+export function onNotificationReceived(_handler: (title: string) => void) {
+  return () => {};
 }
 
 export async function scheduledReminderCount() {

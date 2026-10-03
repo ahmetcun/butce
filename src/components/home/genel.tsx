@@ -6,7 +6,7 @@ import type { HeroData } from '@/components/home/hero';
 import { Icon } from '@/components/icon';
 import { TransactionRow } from '@/components/transaction-row';
 import { Card, EmptyState, IconBubble, ListCard, ProgressBar, PromoBanner, RoundAction, Row, SectionLabel, T, Touch } from '@/components/ui';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { formatMoney, monthKey, monthLabel } from '@/lib/format';
 import { remindersSupported } from '@/lib/reminders';
@@ -37,8 +37,8 @@ export function GenelBody({ go }: { go: (b: Bolum) => void }) {
   const sections = useBudget((s) => s.settings.homeSections);
   return (
     <View>
-      <MemberCards />
       <Suggestions go={go} />
+      <MemberCards />
       {sections
         .filter((s) => s.visible)
         .map((s, i) => (
@@ -81,7 +81,7 @@ function MemberCards() {
 
   return (
     <View>
-      <SectionLabel>Ailen bu ay</SectionLabel>
+      <SectionLabel hint="Kişiye dokun, harcamalarını gör">Ailen bu ay</SectionLabel>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -90,27 +90,28 @@ function MemberCards() {
         {byMember.map(({ m, expense }) => (
           <Touch
             key={m.id}
-            pressScale={0.95}
+            pressScale={0.96}
             onPress={() => router.push({ pathname: '/islemler', params: { uye: m.id } })}
-            style={[styles.memberCard, { backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 }]}>
+            style={[styles.memberCard, { backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.05 }]}>
             <View style={[styles.memberAvatar, { backgroundColor: t.surfaceAlt }]}>
-              <T style={{ fontSize: 18 }}>{m.emoji}</T>
+              <T style={{ fontSize: 17 }}>{m.emoji}</T>
             </View>
             <View>
               <T v="small" muted numberOfLines={1}>
                 {m.id === 'me' && userName ? userName.split(' ')[0] : m.name}
               </T>
-              <T v="heading" style={{ fontSize: 17 }} numberOfLines={1}>
+              <T v="bodyBold" numberOfLines={1}>
                 {hidden ? '•••' : formatMoney(expense, { decimals: false })}
               </T>
             </View>
           </Touch>
         ))}
-        <Touch pressScale={0.95} onPress={() => router.push('/profil')} style={[styles.memberCard, styles.addCard, { backgroundColor: t.ink }]}>
-          <Icon name="plus" size={26} color={t.onInk} />
-          <T v="bodyBold" color={t.onInk} style={{ textAlign: 'center' }}>
-            Üye ekle
-          </T>
+        <Touch
+          pressScale={0.96}
+          onPress={() => router.push('/profil')}
+          accessibilityLabel="Üye ekle"
+          style={[styles.memberCard, styles.addCard, { borderColor: t.border }]}>
+          <Icon name="plus" size={20} color={t.text} />
         </Touch>
       </ScrollView>
     </View>
@@ -147,7 +148,7 @@ function Suggestions({ go }: { go: (b: Bolum) => void }) {
   if (visible.length === 0) return null;
 
   return (
-    <View style={{ gap: 10, marginTop: Spacing.three }}>
+    <View style={{ gap: 10, marginTop: Spacing.four }}>
       {visible.map((i) => (
         <PromoBanner
           key={i.id}
@@ -164,7 +165,6 @@ function Suggestions({ go }: { go: (b: Bolum) => void }) {
 
 /** Sık girilen harcamalar, Akbank'taki "Önerilen hızlı işlemler" gibi yuvarlak butonlar. */
 function QuickTemplates() {
-  const t = useTheme();
   const transactions = useBudget((s) => s.transactions);
   const categories = useBudget((s) => s.categories);
   const addTransaction = useBudget((s) => s.addTransaction);
@@ -187,12 +187,13 @@ function QuickTemplates() {
   return (
     <View>
       <SectionLabel
+        hint="Dokun, aynısı bugüne eklensin"
         action={justAdded ? 'Geri al' : undefined}
         onAction={() => {
           if (justAdded) removeTransaction(justAdded);
           setJustAdded(null);
         }}>
-        {justAdded ? '✓ Eklendi' : 'Önerilen hızlı işlemler'}
+        {justAdded ? '✓ Eklendi' : 'Hızlı ekle'}
       </SectionLabel>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -Spacing.three }} contentContainerStyle={{ paddingHorizontal: Spacing.two }}>
         {templates.map((tpl) => {
@@ -201,6 +202,7 @@ function QuickTemplates() {
             <View key={tpl.id} style={{ width: 92 }}>
               <RoundAction
                 icon={c?.icon ?? 'more'}
+                tint={c?.color}
                 label={`${tpl.note || c?.name}\n${formatMoney(tpl.amount, { decimals: tpl.amount % 1 !== 0 })}`}
                 onPress={() => add(tpl)}
               />
@@ -208,9 +210,6 @@ function QuickTemplates() {
           );
         })}
       </ScrollView>
-      <T v="caption" muted style={{ textAlign: 'center', marginTop: 8, color: t.textMuted }}>
-        Dokun, aynısını bugüne ekle
-      </T>
     </View>
   );
 }
@@ -225,7 +224,7 @@ function UpcomingBills({ go }: { go: (b: Bolum) => void }) {
   if (bills.length === 0) return null;
 
   return (
-    <ListCard title="Yaklaşan Ödemeler" meta={`${upcoming.length} ödeme`} onPress={() => go('odemeler')} style={{ marginTop: Spacing.four }}>
+    <ListCard title="Yaklaşan ödemeler" meta={`${upcoming.length} ödeme`} onPress={() => go('odemeler')} style={{ marginTop: Spacing.four }}>
       {upcoming.length === 0 ? (
         <EmptyState icon="check" text="Bu ayın tüm ödemeleri yapıldı 🎉" />
       ) : (
@@ -260,7 +259,7 @@ function BudgetLimits({ go }: { go: (b: Bolum) => void }) {
   );
 
   return (
-    <ListCard title="Bütçe Limitleri" meta={`${rows.length} limit`} onPress={() => go('butce')} style={{ marginTop: Spacing.four }}>
+    <ListCard title="Bütçe limitleri" meta={`${rows.length} limit`} onPress={() => go('butce')} style={{ marginTop: Spacing.four }}>
       {rows.length === 0 ? (
         <EmptyState icon="chart" text="Henüz limit yok. Bütçe bölümünden kategorilere aylık limit koyabilirsin." />
       ) : (
@@ -289,7 +288,7 @@ function Goals({ go }: { go: (b: Bolum) => void }) {
   const goals = useBudget((s) => s.goals);
   if (goals.length === 0) return null;
   return (
-    <ListCard title="Birikim Hedefleri" meta={`${goals.length} hedef`} onPress={() => go('hedefler')} style={{ marginTop: Spacing.four }}>
+    <ListCard title="Birikim hedefleri" meta={`${goals.length} hedef`} onPress={() => go('hedefler')} style={{ marginTop: Spacing.four }}>
       <View style={{ gap: 16, paddingVertical: 8 }}>
         {goals.slice(0, 3).map((g) => (
           <Row key={g.id} style={{ gap: 14 }}>
@@ -334,26 +333,33 @@ function Recent() {
 
 const styles = StyleSheet.create({
   memberCard: {
-    width: 128,
-    height: 128,
-    borderRadius: 22,
-    padding: 14,
-    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    height: 60,
+    paddingLeft: 10,
+    paddingRight: 16,
+    borderRadius: Radius.pill,
     shadowColor: '#1B2A1F',
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
     elevation: 1,
   },
   memberAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addCard: {
-    alignItems: 'center',
+    width: 60,
+    paddingLeft: 0,
+    paddingRight: 0,
     justifyContent: 'center',
-    gap: 8,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    shadowOpacity: 0,
+    elevation: 0,
   },
 });

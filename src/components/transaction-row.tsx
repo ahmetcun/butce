@@ -26,8 +26,8 @@ export function TransactionRow({ tx, onLongPress, card }: { tx: Transaction; onL
           card && [styles.card, { backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 }],
         ]}>
         {card ? (
-          <View style={[styles.avatar, { backgroundColor: color }]}>
-            <Icon name={category?.icon ?? 'more'} size={22} color="#fff" weight="line" />
+          <View style={[styles.avatar, { backgroundColor: color + '1F' }]}>
+            <Icon name={category?.icon ?? 'more'} size={22} color={color} />
           </View>
         ) : (
           <IconBubble icon={category?.icon ?? 'more'} color={color} />
@@ -42,7 +42,8 @@ export function TransactionRow({ tx, onLongPress, card }: { tx: Transaction; onL
               .join(' · ')}
           </T>
         </View>
-        <T v="bodyBold" color={income ? t.income : t.expense}>
+        {/* Giderler nötr, yalnızca gelir renkli: listede kırmızı kalabalığı olmasın */}
+        <T v="bodyBold" color={income ? t.income : t.text}>
           {formatMoney(income ? tx.amount : -tx.amount, { sign: true })}
         </T>
       </Row>
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 46,
     height: 46,
-    borderRadius: 23,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

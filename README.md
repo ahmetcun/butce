@@ -1,6 +1,6 @@
 # Aile Bütçem
 
-Aile bütçesi takip uygulaması. Yumuşak, modern bir finans uygulaması görünümü: pastel degrade zemin, pastel bakiye kartı, siyah vurgular, her işlemin ayrı kart olduğu listeler, yüzen yuvarlak alt menü ve uygulamaya özel çizilmiş ikonlar. Renkler kullanıcı tarafından seçilebilir.
+Aile bütçesi takip uygulaması. Yumuşak, modern bir finans uygulaması görünümü: pastel degrade zemin, pastel bakiye kartı, siyah vurgular, her işlemin ayrı kart olduğu listeler, yüzen yuvarlak alt menü ve Hugeicons ikonları. Renkler kullanıcı tarafından seçilebilir.
 
 ## Özellikler
 
@@ -25,7 +25,7 @@ Aile bütçesi takip uygulaması. Yumuşak, modern bir finans uygulaması görü
 | Gezinme | Expo Router (dosya tabanlı; alt sekmeler + modal) |
 | Durum yönetimi | Zustand |
 | Kalıcı veri | `expo-sqlite/kv-store` (telefon), `localStorage` (web) |
-| İkonlar | Uygulamaya özel çizilmiş, çift tonlu SVG ikonlar (`react-native-svg`) |
+| İkonlar | Hugeicons (stroke rounded, `@hugeicons/core-free-icons`), tek tek içe aktarılıp `react-native-svg` ile çiziliyor |
 | Degrade | `expo-linear-gradient` |
 | Dokunsal geri bildirim | `expo-haptics` |
 | Animasyon ve jestler | `react-native-reanimated`, `react-native-gesture-handler` |

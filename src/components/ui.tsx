@@ -130,26 +130,47 @@ export function Touch({
 
 /* ------------------------------ Akbank parçaları ------------------------------ */
 
-/** Bölüm başlığı: kalın, normal yazım, sağda isteğe bağlı eylem. */
-export function SectionLabel({ children, action, onAction }: { children: string; action?: string; onAction?: () => void }) {
+/**
+ * Bölüm başlığı: tüm bölümlerde aynı tek seviye. Solda başlık (ve isteğe bağlı
+ * soluk açıklama), sağda soluk eylem + ok.
+ */
+export function SectionLabel({
+  children,
+  hint,
+  action,
+  onAction,
+}: {
+  children: string;
+  hint?: string;
+  action?: string;
+  onAction?: () => void;
+}) {
   const t = useTheme();
   return (
     <Row style={styles.sectionLabel}>
-      <T v="heading" style={{ flex: 1, fontFamily: FontFamily.medium, fontSize: 18 }}>
-        {children}
-      </T>
+      <View style={{ flex: 1, gap: 2 }}>
+        <T v="heading" style={{ fontFamily: FontFamily.semibold }}>
+          {children}
+        </T>
+        {hint ? (
+          <T v="small" muted>
+            {hint}
+          </T>
+        ) : null}
+      </View>
       {action ? (
-        <Touch onPress={onAction} hitSlop={10}>
-          <T v="body" color={t.textMuted}>
+        <Touch onPress={onAction} disabled={!onAction} hitSlop={10} style={styles.sectionAction}>
+          <T v="small" color={t.textMuted} style={{ fontFamily: FontFamily.medium }}>
             {action}
           </T>
+          {onAction ? <Icon name="chevronRight" size={14} color={t.textMuted} weight="bold" /> : null}
         </Touch>
       ) : null}
     </Row>
   );
 }
 
-/** "Vadesiz Hesap   1 hesap ›" başlıklı beyaz kart. */
+/** Başlığı kartın dışında (SectionLabel) duran beyaz liste kartı. */
 export function ListCard({
   title,
   meta,
@@ -157,35 +178,21 @@ export function ListCard({
   children,
   style,
 }: {
-  title: string;
+  title?: string;
   meta?: string;
   onPress?: () => void;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
-  const t = useTheme();
   return (
-    <Card style={[{ paddingVertical: 0 }, style]}>
-      <Touch onPress={onPress} disabled={!onPress} pressScale={0.99} haptic={!!onPress}>
-        <Row style={{ paddingVertical: 18, gap: Spacing.two }}>
-          <T v="heading" style={{ flex: 1 }}>
-            {title}
-          </T>
-          {meta ? (
-            <T v="body" muted>
-              {meta}
-            </T>
-          ) : null}
-          {onPress ? (
-            <View style={[styles.chevron, { backgroundColor: t.surfaceAlt }]}>
-              <Icon name="chevronRight" size={14} color={t.text} />
-            </View>
-          ) : null}
-        </Row>
-      </Touch>
-      <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.border }} />
-      <View style={{ paddingVertical: Spacing.two }}>{children}</View>
-    </Card>
+    <View style={style}>
+      {title ? (
+        <SectionLabel action={meta} onAction={onPress}>
+          {title}
+        </SectionLabel>
+      ) : null}
+      <Card style={{ paddingVertical: Spacing.two }}>{children}</Card>
+    </View>
   );
 }
 
@@ -196,7 +203,10 @@ export function RoundAction({
   onPress,
   onColor,
   badge,
+  tint,
 }: {
+  /** Verilirse ikon bu renkte, daire bu rengin açık tonunda */
+  tint?: string;
   icon: GlyphName;
   label: string;
   onPress: () => void;
@@ -213,7 +223,8 @@ export function RoundAction({
             ? { backgroundColor: 'rgba(255,255,255,0.18)' }
             : { backgroundColor: t.surface, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
         ]}>
-        <Icon name={icon} size={24} color={onColor ? '#fff' : t.text} />
+        {tint ? <View style={[StyleSheet.absoluteFill, { borderRadius: 28, backgroundColor: tint + '1F' }]} /> : null}
+        <Icon name={icon} size={24} color={onColor ? '#fff' : (tint ?? t.text)} />
         {badge ? (
           <View style={[styles.badge, { backgroundColor: t.primary }]}>
             <T v="caption" color="#fff">
@@ -222,7 +233,7 @@ export function RoundAction({
           </View>
         ) : null}
       </View>
-      <T v="small" color={onColor ? '#fff' : t.textMuted} style={{ textAlign: 'center', fontWeight: onColor ? '500' : '400' }} numberOfLines={2}>
+      <T v="small" color={onColor ? '#fff' : t.text} style={{ textAlign: 'center', fontWeight: '500' }} numberOfLines={2}>
         {label}
       </T>
     </Touch>
@@ -437,9 +448,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionLabel: {
-    marginTop: Spacing.four,
+    marginTop: 28,
     marginBottom: 12,
     paddingHorizontal: 2,
+  },
+  sectionAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
   },
   chevron: {
     width: 28,
