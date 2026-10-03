@@ -1,7 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useFocusEffect } from 'expo-router';
-import { setStatusBarStyle } from 'expo-status-bar';
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { router } from 'expo-router';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,35 +8,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type GlyphName } from '@/components/icon';
 import { TAB_BAR_SPACE } from '@/components/tab-bar';
 import { T, Touch } from '@/components/ui';
-import { Base, enter } from '@/constants/motion';
+import { Base } from '@/constants/motion';
 import { FontFamily, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { greeting } from '@/lib/format';
 import { useBudget } from '@/store/budget';
 
-/** Renkli alanın o anki rengi; içindeki butonlar ikonlarını bu renge boyar. */
-const HeroColor = createContext('#000000');
-export const useHeroColor = () => useContext(HeroColor);
-
 /**
- * Ana sayfa başlığı: tek parça, köşeleri yuvarlak, hafif degradeli renkli alan.
- * Üstte selamlama + arama + zil, altında segment kontrol ve bölüm özeti.
- * Bölüm değişince renk 200 ms'de yumuşakça geçer.
+ * Ana sayfa başlığı: renkli bant yok. Avatar + selamlama + arama + zil,
+ * altında ortalanmış bölüm sekmeleri.
  */
 export function HomeHeader<K extends string>({
-  color,
   sections,
   active,
   onChange,
-  children,
   hasAlert,
   onBell,
 }: {
-  color: string;
   sections: { key: K; label: string }[];
   active: K;
   onChange: (k: K) => void;
-  children: ReactNode;
   hasAlert?: boolean;
   onBell: () => void;
 }) {
@@ -46,68 +35,42 @@ export function HomeHeader<K extends string>({
   const familyName = useBudget((s) => s.settings.familyName);
   const firstName = userName.split(' ')[0];
 
-  useFocusEffect(useCallback(() => setStatusBarStyle('light'), []));
-
-  const bg = useSharedValue(color);
-  useEffect(() => {
-    bg.set(withTiming(color, Base));
-  }, [color, bg]);
-  const bgStyle = useAnimatedStyle(() => ({ backgroundColor: bg.get() }));
-
   return (
-    <HeroColor.Provider value={color}>
-      <Animated.View style={[styles.hero, { paddingTop: insets.top + 10 }, bgStyle]}>
-        {/* Derinlik için degrade ve dekoratif halkalar */}
-        <LinearGradient
-          colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.22)']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <View pointerEvents="none" style={[styles.ring, { width: 280, height: 280, top: -110, right: -100 }]} />
-        <View pointerEvents="none" style={[styles.ring, { width: 180, height: 180, bottom: -70, left: -60 }]} />
-
-        <View style={styles.inner}>
-          {/* Üst satır */}
-          <View style={styles.topRow}>
-            <Avatar />
-            <View style={{ flex: 1 }}>
-              <T v="small" color="rgba(255,255,255,0.8)" numberOfLines={1}>
-                {greeting()}
-                {firstName ? `, ${firstName}` : ''} 👋
-              </T>
-              <T v="bodyBold" color="#fff" numberOfLines={1} style={{ fontSize: 16 }}>
-                {familyName ? `${familyName} ailesi` : 'Aile bütçen'}
-              </T>
-            </View>
-            <HeaderButton icon="search" label="Ara" onPress={() => router.push('/islemler?ara=1')} />
-            <HeaderButton icon="bellOutline" label="Ödemeler" onPress={onBell} dot={hasAlert} />
-          </View>
-
-          <SectionTabs sections={sections} active={active} onChange={onChange} />
-
-          <Animated.View key={active} entering={enter}>
-            {children}
-          </Animated.View>
+    <View style={[styles.inner, { paddingTop: insets.top + 10, paddingHorizontal: Spacing.three }]}>
+      <View style={styles.topRow}>
+        <Avatar />
+        <View style={{ flex: 1 }}>
+          <T v="heading" style={{ fontSize: 18 }} numberOfLines={1}>
+            Merhaba{firstName ? `, ${firstName}` : ''}!
+          </T>
+          {familyName ? (
+            <T v="small" muted numberOfLines={1}>
+              {familyName} ailesi
+            </T>
+          ) : null}
         </View>
-      </Animated.View>
-    </HeroColor.Provider>
+        <IconButton icon="bellOutline" label="Ödemeler" onPress={onBell} dot={hasAlert} />
+        <IconButton icon="search" label="Ara" onPress={() => router.push('/islemler?ara=1')} />
+      </View>
+      <SectionTabs sections={sections} active={active} onChange={onChange} />
+    </View>
   );
 }
 
-function HeaderButton({ icon, label, onPress, dot }: { icon: GlyphName; label: string; onPress: () => void; dot?: boolean }) {
+/** Çerçevesiz ikon butonu; isteğe bağlı kırmızı bildirim noktası. */
+export function IconButton({ icon, label, onPress, dot }: { icon: GlyphName; label: string; onPress: () => void; dot?: boolean }) {
+  const t = useTheme();
   return (
-    <Touch onPress={onPress} hitSlop={6} style={styles.headerBtn} accessibilityLabel={label}>
-      <Icon name={icon} size={21} color="#fff" />
-      {dot ? <View style={styles.dot} /> : null}
+    <Touch onPress={onPress} hitSlop={8} style={styles.iconBtn} accessibilityLabel={label}>
+      <Icon name={icon} size={24} color={t.text} weight="line" />
+      {dot ? <View style={[styles.dot, { borderColor: t.background }]} /> : null}
     </Touch>
   );
 }
 
 function Avatar() {
+  const t = useTheme();
   const userName = useBudget((s) => s.settings.userName);
-  const color = useHeroColor();
   const initials =
     userName
       .split(' ')
@@ -116,8 +79,8 @@ function Avatar() {
       .map((w) => w.charAt(0).toLocaleUpperCase('tr-TR'))
       .join('') || 'B';
   return (
-    <Touch onPress={() => router.push('/profil')} style={styles.avatar} accessibilityLabel="Profil">
-      <T v="bodyBold" color={color} style={{ fontSize: 15 }}>
+    <Touch onPress={() => router.push('/profil')} style={[styles.avatar, { backgroundColor: t.pastel }]} accessibilityLabel="Profil">
+      <T v="bodyBold" color={t.onPastel} style={{ fontSize: 15 }}>
         {initials}
       </T>
     </Touch>
@@ -125,9 +88,8 @@ function Avatar() {
 }
 
 /**
- * Yazı tabanlı bölüm sekmeleri. Seçili olan tam opak ve yerinde, diğerleri
- * soluk ve hafif aşağıda. Alttaki çizgi seçilen yazıya kayar ve genişliğini
- * ona uydurur. Yalnızca transform/opaklık; 200 ms, sekme yok.
+ * Ortalanmış yazı sekmeleri. Seçili olan koyu, diğerleri soluk; alttaki
+ * siyah çizgi seçilene kayar ve genişliğini yazıya uydurur (200 ms, sekme yok).
  */
 function SectionTabs<K extends string>({
   sections,
@@ -138,6 +100,7 @@ function SectionTabs<K extends string>({
   active: K;
   onChange: (k: K) => void;
 }) {
+  const t = useTheme();
   const [layouts, setLayouts] = useState<Record<string, { x: number; width: number }>>({});
   const x = useSharedValue(0);
   const w = useSharedValue(0);
@@ -161,24 +124,37 @@ function SectionTabs<K extends string>({
           key={s.key}
           label={s.label}
           on={s.key === active}
+          color={t.text}
           onPress={() => onChange(s.key)}
           onLayout={(lx, width) =>
             setLayouts((prev) => (prev[s.key]?.x === lx && prev[s.key]?.width === width ? prev : { ...prev, [s.key]: { x: lx, width } }))
           }
         />
       ))}
-      <Animated.View pointerEvents="none" style={[styles.tabLine, line]} />
+      <Animated.View pointerEvents="none" style={[styles.tabLine, { backgroundColor: t.ink }, line]} />
     </ScrollView>
   );
 }
 
-function SectionTab({ label, on, onPress, onLayout }: { label: string; on: boolean; onPress: () => void; onLayout: (x: number, width: number) => void }) {
+function SectionTab({
+  label,
+  on,
+  color,
+  onPress,
+  onLayout,
+}: {
+  label: string;
+  on: boolean;
+  color: string;
+  onPress: () => void;
+  onLayout: (x: number, width: number) => void;
+}) {
   const p = useSharedValue(on ? 1 : 0);
   useEffect(() => {
     p.set(withTiming(on ? 1 : 0, Base));
   }, [on, p]);
   const style = useAnimatedStyle(() => ({
-    opacity: 0.55 + 0.45 * p.get(),
+    opacity: 0.4 + 0.6 * p.get(),
     transform: [{ translateY: 2 * (1 - p.get()) }],
   }));
 
@@ -190,7 +166,7 @@ function SectionTab({ label, on, onPress, onLayout }: { label: string; on: boole
       accessibilityRole="tab"
       accessibilityState={{ selected: on }}
       hitSlop={{ top: 8, bottom: 8 }}>
-      <Animated.Text style={[styles.tabText, style]} numberOfLines={1}>
+      <Animated.Text style={[styles.tabText, { color }, style]} numberOfLines={1}>
         {label}
       </Animated.Text>
     </Touch>
@@ -198,57 +174,44 @@ function SectionTab({ label, on, onPress, onLayout }: { label: string; on: boole
 }
 
 /**
- * Diğer sekmelerin başlığı: renkli bant yok, büyük sola yaslı başlık.
- * Altına istenirse arama alanı gelir.
+ * Diğer sayfaların başlığı: ortalanmış başlık, sağda/solda isteğe bağlı buton,
+ * altında isteğe bağlı içerik (siyah hap seçici, arama...).
  */
-export function PageHeader({ title, subtitle, search }: { title: string; subtitle?: string; search?: ReactNode }) {
-  const t = useTheme();
+export function PageHeader({ title, left, right, children }: { title: string; left?: ReactNode; right?: ReactNode; children?: ReactNode }) {
   const insets = useSafeAreaInsets();
-
-  useFocusEffect(useCallback(() => setStatusBarStyle(t.scheme === 'dark' ? 'light' : 'dark'), [t.scheme]));
-
   return (
-    <View style={[styles.inner, { paddingTop: insets.top + Spacing.three, paddingHorizontal: Spacing.three }]}>
-      <T style={{ fontSize: 32, fontFamily: FontFamily.semibold, letterSpacing: -0.5 }}>{title}</T>
-      {subtitle ? (
-        <T v="body" muted style={{ marginTop: 2 }}>
-          {subtitle}
+    <View style={[styles.inner, { paddingTop: insets.top + 8, paddingHorizontal: Spacing.three }]}>
+      <View style={styles.titleRow}>
+        <View style={styles.side}>{left}</View>
+        <T v="heading" style={{ fontSize: 18 }}>
+          {title}
         </T>
-      ) : null}
-      {search ? <View style={{ marginTop: Spacing.three }}>{search}</View> : null}
+        <View style={[styles.side, { alignItems: 'flex-end' }]}>{right}</View>
+      </View>
+      {children}
     </View>
   );
 }
 
-/** Kaydırılabilir sayfa: başlık + içerik. */
+/** Sayfa: pastel degrade zemin üzerinde kaydırılabilir içerik. */
 export function Page({ header, children }: { header: ReactNode; children: ReactNode }) {
   const t = useTheme();
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: t.background }}
-      contentContainerStyle={{ paddingBottom: TAB_BAR_SPACE }}
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled">
-      {header}
-      <View style={[styles.inner, { paddingHorizontal: Spacing.three }]}>{children}</View>
-    </ScrollView>
+    <View style={{ flex: 1, backgroundColor: t.bgGradient[0] }}>
+      <LinearGradient colors={t.bgGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_SPACE }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
+        {header}
+        <View style={[styles.inner, { paddingHorizontal: Spacing.three }]}>{children}</View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.four,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    overflow: 'hidden',
-  },
-  ring: {
-    position: 'absolute',
-    borderRadius: 999,
-    borderWidth: 28,
-    borderColor: 'rgba(255,255,255,0.06)',
-  },
   inner: {
     width: '100%',
     maxWidth: MaxContentWidth,
@@ -257,35 +220,41 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: '#fff',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.16)',
+  iconBtn: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dot: {
     position: 'absolute',
-    top: 9,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FFD166',
+    top: 7,
+    right: 8,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    backgroundColor: '#F0524F',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 48,
+  },
+  side: {
+    flex: 1,
   },
   tabs: {
-    marginTop: Spacing.four,
+    marginTop: Spacing.three,
     marginHorizontal: -Spacing.three,
   },
   tabsContent: {
@@ -293,12 +262,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: Spacing.three,
-    gap: 22,
+    gap: 24,
     paddingBottom: 10,
   },
   tabText: {
-    color: '#fff',
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: FontFamily.semibold,
   },
   tabLine: {
@@ -308,7 +276,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 3,
     borderRadius: 2,
-    backgroundColor: '#fff',
     transformOrigin: 'left',
   },
 });

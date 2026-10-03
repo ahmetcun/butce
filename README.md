@@ -1,6 +1,6 @@
 # Aile Bütçem
 
-Aile bütçesi takip uygulaması. Bankacılık uygulamalarının alışılmış düzeninden (Akbank Mobil) yola çıkıldı, ama kendine ait modern bir görünümü var: degradeli renkli özet alanı, segment kontrol, işlem kartları, yüzen alt bar ve uygulamaya özel çizilmiş ikonlar. Renkler kullanıcı tarafından seçilebilir.
+Aile bütçesi takip uygulaması. Yumuşak, modern bir finans uygulaması görünümü: pastel degrade zemin, pastel bakiye kartı, siyah vurgular, her işlemin ayrı kart olduğu listeler, yüzen yuvarlak alt menü ve uygulamaya özel çizilmiş ikonlar. Renkler kullanıcı tarafından seçilebilir.
 
 ## Özellikler
 

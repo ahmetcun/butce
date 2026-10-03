@@ -5,7 +5,7 @@ import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton } from '@/components/form';
 import type { Bolum } from '@/components/home/genel';
-import { HeroSummary } from '@/components/home/hero';
+import type { HeroData } from '@/components/home/hero';
 import { IconBubble, ListCard, ProgressBar, Row, SectionLabel, T, Touch } from '@/components/ui';
 import { enter, layout } from '@/constants/motion';
 import { Spacing } from '@/constants/theme';
@@ -20,26 +20,23 @@ function useLimitRows() {
   return useMemo(() => spendByCategory(monthTransactions(transactions, monthKey()), categories), [transactions, categories]);
 }
 
-export function ButceHero({ setEditing }: { go: (b: Bolum) => void; setEditing: (id: string | null) => void }) {
+export function useButceHero({ setEditing }: { go: (b: Bolum) => void; setEditing: (id: string | null) => void }): HeroData {
   const rows = useLimitRows();
   const limited = rows.filter((r) => r.category.limit);
   const totalLimit = limited.reduce((a, r) => a + (r.category.limit ?? 0), 0);
   const spent = limited.reduce((a, r) => a + r.spent, 0);
   const firstWithout = rows.find((r) => !r.category.limit);
 
-  return (
-    <HeroSummary
-      label="Kalan limit"
-      value={totalLimit - spent}
-      pill={{ icon: 'chart', text: `${monthLabel(monthKey())} · ${limited.length} limit` }}
-      actions={[
-        { icon: 'plusCircle', label: 'Limit koy', onPress: () => setEditing(firstWithout?.category.id ?? rows[0]?.category.id ?? null) },
-        { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
-        { icon: 'list', label: 'Harcamalar', onPress: () => router.push({ pathname: '/islemler', params: { tur: 'expense' } }) },
-        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
-      ]}
-    />
-  );
+  return {
+    label: 'Kalan limit',
+    value: totalLimit - spent,
+    pill: { icon: 'chart', text: `${monthLabel(monthKey())} · ${limited.length} limit` },
+    actions: [
+      { icon: 'plusCircle', label: 'Limit koy', onPress: () => setEditing(firstWithout?.category.id ?? rows[0]?.category.id ?? null) },
+      { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
+      { icon: 'list', label: 'Harcamalar', onPress: () => router.push({ pathname: '/islemler', params: { tur: 'expense' } }) },
+    ],
+  };
 }
 
 export function ButceBody({ editing, setEditing }: { editing: string | null; setEditing: (id: string | null) => void }) {

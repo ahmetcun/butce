@@ -1,13 +1,14 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { HomeHeader, Page } from '@/components/headers';
-import { ButceBody, ButceHero } from '@/components/home/butce';
-import { GenelBody, GenelHero, type Bolum } from '@/components/home/genel';
-import { HedeflerBody, HedeflerHero } from '@/components/home/hedefler';
-import { OdemelerBody, OdemelerHero } from '@/components/home/odemeler';
-import { SectionColors } from '@/constants/theme';
+import { ButceBody, useButceHero } from '@/components/home/butce';
+import { GenelBody, useGenelHero, type Bolum } from '@/components/home/genel';
+import { HedeflerBody, useHedeflerHero } from '@/components/home/hedefler';
+import { BalanceCard } from '@/components/home/hero';
+import { OdemelerBody, useOdemelerHero } from '@/components/home/odemeler';
+import { SectionPastels } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { upcomingBills } from '@/lib/selectors';
 import { useBudget } from '@/store/budget';
@@ -41,37 +42,32 @@ export default function Home() {
     }
   }
 
-  // Bölümler arası paylaşılan form durumları (renkli alandaki butonlar alttaki formu açar)
+  // Kartın butonları alttaki formları açar
   const [editingLimit, setEditingLimit] = useState<string | null>(null);
   const [addingBill, setAddingBill] = useState(false);
   const [addingGoal, setAddingGoal] = useState(false);
   const [goalCustomFor, setGoalCustomFor] = useState<string | null>(null);
 
-  const go = (b: Bolum) => setBolum(b);
-
-  const color = useMemo(() => {
-    const c = SectionColors[bolum];
-    if (c === 'primary') return t.primary;
-    if (bolum === 'hedefler' && t.scheme === 'dark') return '#3A3D46';
-    return c;
-  }, [bolum, t.primary, t.scheme]);
+  // Her bölümün kart verisi (hook'lar her zaman çağrılır, seçili olan gösterilir)
+  const heroes = {
+    genel: useGenelHero({ go: setBolum }),
+    butce: useButceHero({ go: setBolum, setEditing: setEditingLimit }),
+    odemeler: useOdemelerHero({ setAdding: setAddingBill }),
+    hedefler: useHedeflerHero({ setAdding: setAddingGoal, setCustomFor: setGoalCustomFor }),
+  };
+  const pastelKey = SectionPastels[bolum];
+  const pastel = pastelKey === 'accent' ? t.pastel : pastelKey;
 
   // 3 gün içinde son günü gelen ödeme varsa zilde nokta
   const today = new Date().getDate();
   const hasAlert = upcomingBills(bills).some((b) => b.day - today <= 3);
 
   return (
-    <Page
-      header={
-        <HomeHeader color={color} sections={SECTIONS} active={bolum} onChange={setBolum} hasAlert={hasAlert} onBell={() => setBolum('odemeler')}>
-          {bolum === 'genel' ? <GenelHero go={go} /> : null}
-          {bolum === 'butce' ? <ButceHero go={go} setEditing={setEditingLimit} /> : null}
-          {bolum === 'odemeler' ? <OdemelerHero setAdding={setAddingBill} /> : null}
-          {bolum === 'hedefler' ? <HedeflerHero setAdding={setAddingGoal} setCustomFor={setGoalCustomFor} /> : null}
-        </HomeHeader>
-      }>
+    <Page header={<HomeHeader sections={SECTIONS} active={bolum} onChange={setBolum} hasAlert={hasAlert} onBell={() => setBolum('odemeler')} />}>
+      <BalanceCard data={heroes[bolum]} pastel={pastel} />
+
       <Pane show={bolum === 'genel'} mounted={visited.includes('genel')}>
-        <GenelBody go={go} />
+        <GenelBody go={setBolum} />
       </Pane>
       <Pane show={bolum === 'butce'} mounted={visited.includes('butce')}>
         <ButceBody editing={editingLimit} setEditing={setEditingLimit} />

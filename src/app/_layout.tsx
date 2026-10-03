@@ -35,7 +35,7 @@ export default function RootLayout() {
           ...base,
           colors: { ...base.colors, primary: t.primary, background: t.background, card: t.surface, text: t.text, border: t.border },
         }}>
-        <StatusBar style="light" />
+        <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={onboarded}>
             <Stack.Screen name="(tabs)" />

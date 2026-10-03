@@ -49,7 +49,7 @@ export function parseMoney(v: string) {
   return Number(v.replace(',', '.')) || 0;
 }
 
-/** Akbank'taki gibi hap şeklinde buton: dolu ya da çerçeveli. */
+/** Hap şeklinde buton: siyah dolu ya da çerçeveli. */
 export function PillButton({ label, onPress, outline }: { label: string; onPress: () => void; outline?: boolean }) {
   const t = useTheme();
   return (
@@ -57,9 +57,9 @@ export function PillButton({ label, onPress, outline }: { label: string; onPress
       onPress={onPress}
       style={[
         styles.btn,
-        outline ? { borderWidth: 1.5, borderColor: t.primary, backgroundColor: 'transparent' } : { backgroundColor: t.primary },
+        outline ? { borderWidth: 1.5, borderColor: t.ink, backgroundColor: 'transparent' } : { backgroundColor: t.ink },
       ]}>
-      <T v="bodyBold" color={outline ? t.primary : t.onPrimary}>
+      <T v="bodyBold" color={outline ? t.ink : t.onInk}>
         {label}
       </T>
     </Touch>

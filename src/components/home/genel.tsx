@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { HeroSummary } from '@/components/home/hero';
+import type { HeroData } from '@/components/home/hero';
+import { Icon } from '@/components/icon';
 import { TransactionRow } from '@/components/transaction-row';
-import { Amount, DotsButton, EmptyState, IconBubble, ListCard, ProgressBar, PromoBanner, RoundAction, Row, SectionLabel, T } from '@/components/ui';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Card, EmptyState, IconBubble, ListCard, ProgressBar, PromoBanner, RoundAction, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { formatMoney, monthKey, monthLabel } from '@/lib/format';
 import { remindersSupported } from '@/lib/reminders';
@@ -14,25 +15,22 @@ import { useBudget, type HomeSectionKey, type Transaction } from '@/store/budget
 
 export type Bolum = 'genel' | 'butce' | 'odemeler' | 'hedefler';
 
-export function GenelHero({ go }: { go: (b: Bolum) => void }) {
+export function useGenelHero({ go }: { go: (b: Bolum) => void }): HeroData {
   const transactions = useBudget((s) => s.transactions);
   const month = monthKey();
   const sum = useMemo(() => totals(monthTransactions(transactions, month)), [transactions, month]);
 
-  return (
-    <HeroSummary
-      label="Bu ay kalan"
-      value={sum.balance}
-      pill={{ icon: 'calendar', text: monthLabel(month) }}
-      onPill={() => router.push('/islemler')}
-      actions={[
-        { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
-        { icon: 'arrowDown', label: 'Gelir ekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
-        { icon: 'bill', label: 'Faturalar', onPress: () => go('odemeler') },
-        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
-      ]}
-    />
-  );
+  return {
+    label: 'Bu ay kalan',
+    value: sum.balance,
+    pill: { icon: 'calendar', text: monthLabel(month) },
+    onPill: () => router.push('/islemler'),
+    actions: [
+      { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
+      { icon: 'arrowDown', label: 'Gelir ekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
+      { icon: 'bill', label: 'Faturalar', onPress: () => go('odemeler') },
+    ],
+  };
 }
 
 export function GenelBody({ go }: { go: (b: Bolum) => void }) {
@@ -67,16 +65,14 @@ function HomeSection({ k, go }: { k: HomeSectionKey; go: (b: Bolum) => void }) {
   }
 }
 
-/** Akbank'taki kaydırmalı hesap kartları yerine: aile üyelerinin bu ayki durumu. */
+/** Aile üyelerinin bu ayki harcaması: küçük beyaz kartlar + sonda siyah "Üye ekle" kartı. */
 function MemberCards() {
   const t = useTheme();
-  const { width } = useWindowDimensions();
   const members = useBudget((s) => s.members);
   const transactions = useBudget((s) => s.transactions);
   const userName = useBudget((s) => s.settings.userName);
   const hidden = useBudget((s) => s.settings.hideBalance);
   const month = monthKey();
-  const cardWidth = Math.min(width, MaxContentWidth) * 0.72;
 
   const byMember = useMemo(() => {
     const inMonth = monthTransactions(transactions, month);
@@ -84,40 +80,40 @@ function MemberCards() {
   }, [members, transactions, month]);
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      snapToInterval={cardWidth + 12}
-      decelerationRate="fast"
-      style={{ marginHorizontal: -Spacing.three, marginTop: Spacing.four }}
-      contentContainerStyle={{ gap: 12, paddingHorizontal: Spacing.three }}>
-      {byMember.map(({ m, expense, income }, i) => (
-        <View
-          key={m.id}
-          style={[styles.memberCard, { width: cardWidth, backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 }]}>
-          <Row style={{ gap: 12 }}>
-            <View style={[styles.memberAvatar, { borderColor: t.primary, backgroundColor: t.primarySoft }]}>
-              <T style={{ fontSize: 22 }}>{m.emoji}</T>
+    <View>
+      <SectionLabel>Ailen bu ay</SectionLabel>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ marginHorizontal: -Spacing.three }}
+        contentContainerStyle={{ gap: 10, paddingHorizontal: Spacing.three, paddingBottom: 6 }}>
+        {byMember.map(({ m, expense }) => (
+          <Touch
+            key={m.id}
+            pressScale={0.95}
+            onPress={() => router.push({ pathname: '/islemler', params: { uye: m.id } })}
+            style={[styles.memberCard, { backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 }]}>
+            <View style={[styles.memberAvatar, { backgroundColor: t.surfaceAlt }]}>
+              <T style={{ fontSize: 18 }}>{m.emoji}</T>
             </View>
-            <View style={{ flex: 1 }}>
-              <T v="heading" numberOfLines={1}>
-                {m.id === 'me' && userName ? userName : m.name}
+            <View>
+              <T v="small" muted numberOfLines={1}>
+                {m.id === 'me' && userName ? userName.split(' ')[0] : m.name}
               </T>
-              <T v="small" muted>
-                {monthLabel(month)}
+              <T v="heading" style={{ fontSize: 17 }} numberOfLines={1}>
+                {hidden ? '•••' : formatMoney(expense, { decimals: false })}
               </T>
             </View>
-            <DotsButton onPress={() => router.push({ pathname: '/islemler', params: { uye: m.id } })} />
-          </Row>
-          <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.border, marginVertical: Spacing.three }} />
-          <T v="body">Bu ay harcama</T>
-          <Amount value={expense} size={30} hidden={hidden} animate={false} />
-          <T v="small" muted style={{ marginTop: 4 }}>
-            Gelir: {hidden ? '•••••' : formatMoney(income)}
+          </Touch>
+        ))}
+        <Touch pressScale={0.95} onPress={() => router.push('/profil')} style={[styles.memberCard, styles.addCard, { backgroundColor: t.ink }]}>
+          <Icon name="plus" size={26} color={t.onInk} />
+          <T v="bodyBold" color={t.onInk} style={{ textAlign: 'center' }}>
+            Üye ekle
           </T>
-        </View>
-      ))}
-    </ScrollView>
+        </Touch>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -317,31 +313,47 @@ function Goals({ go }: { go: (b: Bolum) => void }) {
 function Recent() {
   const transactions = useBudget((s) => s.transactions);
   return (
-    <ListCard title="Son İşlemler" meta={`${transactions.length} işlem`} onPress={() => router.push('/islemler')} style={{ marginTop: Spacing.four }}>
+    <View>
+      <SectionLabel action="Tümü" onAction={() => router.push('/islemler')}>
+        Son işlemler
+      </SectionLabel>
       {transactions.length === 0 ? (
-        <EmptyState icon="list" text="Henüz işlem yok. Alttaki Ekle ile ilk harcamanı ekle." />
+        <Card>
+          <EmptyState icon="list" text="Henüz işlem yok. Alttaki + ile ilk harcamanı ekle." />
+        </Card>
       ) : (
-        transactions.slice(0, 5).map((tx) => <TransactionRow key={tx.id} tx={tx} />)
+        <View style={{ gap: 10 }}>
+          {transactions.slice(0, 5).map((tx) => (
+            <TransactionRow key={tx.id} tx={tx} card />
+          ))}
+        </View>
       )}
-    </ListCard>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   memberCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
+    width: 128,
+    height: 128,
+    borderRadius: 22,
+    padding: 14,
+    justifyContent: 'space-between',
+    shadowColor: '#1B2A1F',
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 1,
   },
   memberAvatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  addCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
 });

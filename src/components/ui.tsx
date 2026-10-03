@@ -82,7 +82,7 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
     <View
       style={[
         styles.card,
-        { backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.06 },
+        { backgroundColor: t.surface, shadowOpacity: t.scheme === 'dark' ? 0 : 0.07 },
         style,
       ]}>
       {children}
@@ -135,12 +135,12 @@ export function SectionLabel({ children, action, onAction }: { children: string;
   const t = useTheme();
   return (
     <Row style={styles.sectionLabel}>
-      <T v="heading" style={{ flex: 1, fontFamily: FontFamily.semibold, fontSize: 18 }}>
+      <T v="heading" style={{ flex: 1, fontFamily: FontFamily.medium, fontSize: 18 }}>
         {children}
       </T>
       {action ? (
         <Touch onPress={onAction} hitSlop={10}>
-          <T v="small" color={t.primary} style={{ fontWeight: '500' }}>
+          <T v="body" color={t.textMuted}>
             {action}
           </T>
         </Touch>
@@ -213,7 +213,7 @@ export function RoundAction({
             ? { backgroundColor: 'rgba(255,255,255,0.18)' }
             : { backgroundColor: t.surface, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
         ]}>
-        <Icon name={icon} size={24} color={onColor ? '#fff' : t.primary} />
+        <Icon name={icon} size={24} color={onColor ? '#fff' : t.text} />
         {badge ? (
           <View style={[styles.badge, { backgroundColor: t.primary }]}>
             <T v="caption" color="#fff">
@@ -392,12 +392,12 @@ export function Chip({
       style={[
         styles.chip,
         {
-          backgroundColor: selected ? t.primary : t.surface,
-          borderColor: selected ? t.primary : t.border,
+          backgroundColor: selected ? t.ink : t.surface,
+          borderColor: selected ? t.ink : t.border,
         },
       ]}>
       {leading}
-      <T v="small" color={selected ? t.onPrimary : t.text} style={{ fontWeight: '500' }}>
+      <T v="small" color={selected ? t.onInk : t.text} style={{ fontWeight: '500' }}>
         {label}
       </T>
     </Touch>
@@ -428,13 +428,13 @@ export function DotsButton({ onPress }: { onPress: () => void }) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     paddingHorizontal: 20,
     paddingVertical: Spacing.three,
-    shadowColor: '#000',
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    shadowColor: '#1B2A1F',
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
   },
   sectionLabel: {
     marginTop: Spacing.four,

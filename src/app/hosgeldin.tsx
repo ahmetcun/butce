@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -42,16 +43,17 @@ export default function Welcome() {
   const start = (demo: boolean) => completeOnboarding({ userName: userName.trim(), familyName: familyName.trim(), accent, demo });
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.surface }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bgGradient[0] }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <LinearGradient colors={t.bgGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={[styles.wrap, { paddingTop: insets.top + Spacing.five }]}>
-          <Animated.View entering={enter} style={[styles.avatar, { backgroundColor: t.surfaceAlt }]}>
-            <T style={{ fontSize: 32, fontFamily: FontFamily.semibold }} color={t.primary}>
+          <Animated.View entering={enter} style={[styles.avatar, { backgroundColor: t.pastel }]}>
+            <T style={{ fontSize: 32, fontFamily: FontFamily.semibold }} color={t.onPastel}>
               {initials}
             </T>
-            <View style={[styles.avatarBadge, { backgroundColor: t.primary, borderColor: t.surface }]}>
-              <Icon name="family" size={14} color="#fff" />
+            <View style={[styles.avatarBadge, { backgroundColor: t.ink, borderColor: t.bgGradient[0] }]}>
+              <Icon name="family" size={14} color={t.onInk} />
             </View>
           </Animated.View>
 
@@ -68,7 +70,7 @@ export default function Welcome() {
               onChangeText={setUserName}
               placeholder="Adın (Örn: Ahmet Can)"
               placeholderTextColor={t.textMuted}
-              style={[styles.input, { color: t.text, backgroundColor: t.surfaceAlt }]}
+              style={[styles.input, { color: t.text, backgroundColor: t.surface }]}
               returnKeyType="next"
             />
             <TextInput
@@ -76,7 +78,7 @@ export default function Welcome() {
               onChangeText={setFamilyName}
               placeholder="Aile adı (isteğe bağlı)"
               placeholderTextColor={t.textMuted}
-              style={[styles.input, { color: t.text, backgroundColor: t.surfaceAlt }]}
+              style={[styles.input, { color: t.text, backgroundColor: t.surface }]}
             />
             <Row style={{ justifyContent: 'center', gap: 14, marginTop: 6 }}>
               {(Object.keys(Accents) as AccentKey[]).map((k) => (
@@ -94,12 +96,12 @@ export default function Welcome() {
 
           <Animated.View entering={enter} style={{ width: '100%', alignItems: 'center', marginTop: Spacing.four }}>
             <Touch onPress={() => start(true)} hitSlop={8}>
-              <T v="bodyBold" color={t.primary} style={{ fontSize: 16 }}>
+              <T v="bodyBold" color={t.text} style={{ fontSize: 16, textDecorationLine: 'underline' }}>
                 Örnek verilerle göz at
               </T>
             </Touch>
-            <Touch onPress={() => start(false)} style={[styles.button, { backgroundColor: t.primary }]}>
-              <T v="heading" color="#fff">
+            <Touch onPress={() => start(false)} style={[styles.button, { backgroundColor: t.ink }]}>
+              <T v="heading" color={t.onInk}>
                 Başlayalım
               </T>
             </Touch>
@@ -109,20 +111,20 @@ export default function Welcome() {
         {/* Renkli alt panel: Akbank'taki FAST / QR / Fiyat ve Oranlar düzeni */}
         <Animated.View
           entering={enter}
-          style={[styles.panel, { backgroundColor: t.primary, paddingBottom: insets.bottom + Spacing.three }]}>
+          style={[styles.panel, { backgroundColor: t.pastel, marginBottom: insets.bottom + Spacing.three }]}>
           <Row style={{ alignItems: 'flex-start', width: '100%', maxWidth: MaxContentWidth }}>
             {FEATURES.map((f) => (
               <View key={f.label} style={{ flex: 1, alignItems: 'center', gap: 10 }}>
                 <View style={styles.featureCircle}>
-                  <Icon name={f.icon} size={26} color={t.primary} />
+                  <Icon name={f.icon} size={26} color={t.onPastel} />
                 </View>
-                <T v="small" color="#fff" style={{ textAlign: 'center' }}>
+                <T v="small" color={t.onPastel} style={{ textAlign: 'center' }}>
                   {f.label}
                 </T>
               </View>
             ))}
           </Row>
-          <T v="small" color="rgba(255,255,255,0.85)" style={{ marginTop: Spacing.four }}>
+          <T v="small" color={t.onPastel} style={{ marginTop: Spacing.four, opacity: 0.7 }}>
             Veriler yalnızca bu cihazda saklanır
           </T>
         </Animated.View>
@@ -191,8 +193,10 @@ const styles = StyleSheet.create({
   },
   panel: {
     alignItems: 'center',
-    paddingTop: Spacing.four,
-    paddingHorizontal: Spacing.three,
+    marginHorizontal: Spacing.three,
+    paddingVertical: Spacing.four,
+    paddingHorizontal: Spacing.two,
+    borderRadius: Radius.xl,
   },
   featureCircle: {
     width: 60,

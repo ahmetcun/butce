@@ -1,13 +1,12 @@
 import { router } from 'expo-router';
 import type { Tabs } from 'expo-router/js-tabs';
-import { useEffect, useState, type ComponentProps } from 'react';
+import { useEffect, type ComponentProps } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { Icon, type GlyphName } from '@/components/icon';
 import { tap } from '@/components/ui';
 import { Base, Fast } from '@/constants/motion';
-import { FontFamily, MaxContentWidth } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
@@ -15,100 +14,79 @@ type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 const ICONS: Record<string, GlyphName> = {
   index: 'home',
   islemler: 'swap',
-  yeni: 'plusCircle',
+  yeni: 'plus',
   profil: 'person',
 };
 
-const BAR_HEIGHT = 68;
-const PAD = 6;
+const SIZE = 58;
 
-/** Sayfaların altında bırakılması gereken boşluk (yüzen bar + kenar boşluğu). */
-export const TAB_BAR_SPACE = BAR_HEIGHT + 56;
+/** Sayfaların altında bırakılması gereken boşluk (yüzen butonlar + kenar boşluğu). */
+export const TAB_BAR_SPACE = SIZE + 64;
 
 /**
- * Ekranın altında yüzen kapsül bar. Aktif sekmenin arkasındaki renkli hap
- * yumuşakça kayar. Animasyonlar yalnızca transform ve renkle yapılır
- * (UI thread'de çalışır, JS'i meşgul etmez).
+ * Ayrı ayrı yüzen yuvarlak butonlar. Aktif olan siyah dolar, ikon beyaza döner.
+ * Yalnızca opaklık ve ölçek; 200 ms, sekme yok.
  */
 export function TabBar({ state, descriptors, navigation, insets }: TabBarProps) {
-  const t = useTheme();
-  const [width, setWidth] = useState(0);
-  const slot = (width - PAD * 2) / state.routes.length;
-
-  const x = useSharedValue(0);
-  useEffect(() => {
-    if (slot > 0) x.set(withTiming(state.index * slot, Base));
-  }, [state.index, slot, x]);
-  const pill = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }] }));
-
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { bottom: Math.max(insets.bottom, 14) }]}>
-      <View
-        onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-        style={[
-          styles.bar,
-          {
-            backgroundColor: t.surface,
-            borderColor: t.border,
-            shadowColor: t.scheme === 'dark' ? '#000' : t.primaryDeep,
-          },
-        ]}>
-        {slot > 0 ? <Animated.View style={[styles.pill, { width: slot, backgroundColor: t.primary }, pill]} /> : null}
+      {state.routes.map((route, i) => {
+        const focused = state.index === i;
+        const { options } = descriptors[route.key];
+        const label = typeof options.title === 'string' ? options.title : route.name;
 
-        {state.routes.map((route, i) => {
-          const focused = state.index === i;
-          const { options } = descriptors[route.key];
-          const label = typeof options.title === 'string' ? options.title : route.name;
+        const onPress = () => {
+          tap();
+          // "Ekle" bir sayfa değil, ekleme ekranını açar
+          if (route.name === 'yeni') {
+            router.push('/ekle');
+            return;
+          }
+          const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+          if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
+        };
 
-          const onPress = () => {
-            tap();
-            // "Ekle" bir sayfa değil, ekleme ekranını açar
-            if (route.name === 'yeni') {
-              router.push('/ekle');
-              return;
-            }
-            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
-          };
-
-          return <TabItem key={route.key} icon={ICONS[route.name] ?? 'more'} label={label} focused={focused} onPress={onPress} />;
-        })}
-      </View>
+        return <TabCircle key={route.key} icon={ICONS[route.name] ?? 'more'} label={label} focused={focused} onPress={onPress} />;
+      })}
     </View>
   );
 }
 
-function TabItem({ icon, label, focused, onPress }: { icon: GlyphName; label: string; focused: boolean; onPress: () => void }) {
+function TabCircle({ icon, label, focused, onPress }: { icon: GlyphName; label: string; focused: boolean; onPress: () => void }) {
   const t = useTheme();
-  const progress = useSharedValue(focused ? 1 : 0);
-  const pressed = useSharedValue(1);
+  const on = useSharedValue(focused ? 1 : 0);
+  const press = useSharedValue(1);
 
   useEffect(() => {
-    progress.set(withTiming(focused ? 1 : 0, Base));
-  }, [focused, progress]);
+    on.set(withTiming(focused ? 1 : 0, Base));
+  }, [focused, on]);
 
-  const muted = t.textMuted;
-  const content = useAnimatedStyle(() => ({
-    transform: [{ scale: pressed.get() * (1 + 0.06 * progress.get()) }],
-  }));
-  const labelStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(progress.get(), [0, 1], [muted, '#FFFFFF']),
-  }));
+  const circle = useAnimatedStyle(() => ({ transform: [{ scale: press.get() }] }));
+  const fill = useAnimatedStyle(() => ({ opacity: on.get(), transform: [{ scale: 0.6 + 0.4 * on.get() }] }));
+  const onIcon = useAnimatedStyle(() => ({ opacity: on.get() }));
+  const offIcon = useAnimatedStyle(() => ({ opacity: 1 - on.get() }));
 
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => pressed.set(withTiming(0.92, Fast))}
-      onPressOut={() => pressed.set(withTiming(1, Fast))}
+      onPressIn={() => press.set(withTiming(0.9, Fast))}
+      onPressOut={() => press.set(withTiming(1, Fast))}
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
-      accessibilityLabel={label}
-      style={styles.item}>
-      <Animated.View style={[styles.itemInner, content]}>
-        <Icon name={icon} size={25} color={focused ? '#FFFFFF' : t.textMuted} weight={focused ? 'bold' : 'duotone'} />
-        <Animated.Text style={[styles.label, labelStyle]} numberOfLines={1}>
-          {label}
-        </Animated.Text>
+      accessibilityLabel={label}>
+      <Animated.View
+        style={[
+          styles.circle,
+          { backgroundColor: t.glass, borderColor: t.scheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)' },
+          circle,
+        ]}>
+        <Animated.View style={[StyleSheet.absoluteFill, styles.fill, { backgroundColor: t.ink }, fill]} />
+        <Animated.View style={[styles.icon, offIcon]}>
+          <Icon name={icon} size={24} color={t.text} weight="line" />
+        </Animated.View>
+        <Animated.View style={[styles.icon, onIcon]}>
+          <Icon name={icon} size={24} color={t.onInk} weight="bold" />
+        </Animated.View>
       </Animated.View>
     </Pressable>
   );
@@ -117,42 +95,29 @@ function TabItem({ icon, label, focused, onPress }: { icon: GlyphName; label: st
 const styles = StyleSheet.create({
   wrap: {
     position: 'absolute',
-    left: 16,
-    right: 16,
-    alignItems: 'center',
-  },
-  bar: {
-    width: '100%',
-    maxWidth: MaxContentWidth - 32,
-    height: BAR_HEIGHT,
-    borderRadius: BAR_HEIGHT / 2,
-    borderWidth: StyleSheet.hairlineWidth,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: PAD,
-    shadowOpacity: 0.16,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 12,
-  },
-  pill: {
-    position: 'absolute',
-    left: PAD,
-    top: PAD,
-    bottom: PAD,
-    borderRadius: (BAR_HEIGHT - PAD * 2) / 2,
-  },
-  item: {
-    flex: 1,
-    height: '100%',
     justifyContent: 'center',
+    gap: 12,
   },
-  itemInner: {
+  circle: {
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    borderWidth: 1,
     alignItems: 'center',
-    gap: 2,
+    justifyContent: 'center',
+    shadowColor: '#1B2A1F',
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
   },
-  label: {
-    fontSize: 11,
-    fontFamily: FontFamily.medium,
+  fill: {
+    borderRadius: SIZE / 2,
+  },
+  icon: {
+    position: 'absolute',
   },
 });

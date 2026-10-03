@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton, TextField } from '@/components/form';
-import { HeroSummary } from '@/components/home/hero';
+import type { HeroData } from '@/components/home/hero';
 import { Icon } from '@/components/icon';
 import { Card, Chip, EmptyState, ProgressBar, Row, SectionLabel, T, Touch } from '@/components/ui';
 import { enter, layout } from '@/constants/motion';
@@ -16,24 +16,21 @@ import { useBudget } from '@/store/budget';
 
 const GOAL_EMOJIS = ['🏖️', '🏠', '🚗', '🎓', '🛟', '💍', '📱', '👶'];
 
-export function HedeflerHero({ setAdding, setCustomFor }: { setAdding: (v: boolean) => void; setCustomFor: (id: string | null) => void }) {
+export function useHedeflerHero({ setAdding, setCustomFor }: { setAdding: (v: boolean) => void; setCustomFor: (id: string | null) => void }): HeroData {
   const goals = useBudget((s) => s.goals);
   const saved = goals.reduce((a, g) => a + g.saved, 0);
   const target = goals.reduce((a, g) => a + g.target, 0);
 
-  return (
-    <HeroSummary
-      label="Toplam birikim"
-      value={saved}
-      pill={{ icon: 'target', text: target ? `Hedef: ${formatMoney(target, { decimals: false })}` : 'Henüz hedef yok' }}
-      actions={[
-        { icon: 'plusCircle', label: 'Hedef ekle', onPress: () => setAdding(true) },
-        { icon: 'piggy', label: 'Para ekle', onPress: () => setCustomFor(goals[0]?.id ?? null) },
-        { icon: 'arrowDown', label: 'Gelir ekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
-        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
-      ]}
-    />
-  );
+  return {
+    label: 'Toplam birikim',
+    value: saved,
+    pill: { icon: 'target', text: target ? `Hedef: ${formatMoney(target, { decimals: false })}` : 'Henüz hedef yok' },
+    actions: [
+      { icon: 'plusCircle', label: 'Hedef ekle', onPress: () => setAdding(true) },
+      { icon: 'piggy', label: 'Para ekle', onPress: () => setCustomFor(goals[0]?.id ?? null) },
+      { icon: 'arrowDown', label: 'Gelir ekle', onPress: () => router.push({ pathname: '/ekle', params: { type: 'income' } }) },
+    ],
+  };
 }
 
 export function HedeflerBody({

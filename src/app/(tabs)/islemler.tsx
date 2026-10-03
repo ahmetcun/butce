@@ -1,16 +1,18 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
-import { Page, PageHeader } from '@/components/headers';
+import { IconButton, Page, PageHeader } from '@/components/headers';
 import { Icon } from '@/components/icon';
 import { TransactionRow } from '@/components/transaction-row';
-import { Card, Chip, EmptyState, RoundAction, Row, SectionLabel, T, Touch } from '@/components/ui';
+import { Card, Chip, EmptyState, Row, T, Touch } from '@/components/ui';
+import { enter } from '@/constants/motion';
 import { FontFamily, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
 import { dayLabel, formatMoney, monthKey, monthLabel, shiftMonth } from '@/lib/format';
-import { frequentCategoryIds, monthTransactions, totals } from '@/lib/selectors';
+import { monthTransactions, totals } from '@/lib/selectors';
 import { useBudget, type TxType } from '@/store/budget';
 
 export default function Transactions() {
@@ -24,21 +26,18 @@ export default function Transactions() {
   const [month, setMonth] = useState(monthKey());
   const [type, setType] = useState<TxType | 'all'>(params.tur ?? 'all');
   const [memberId, setMemberId] = useState<string | null>(params.uye ?? null);
+  const [searching, setSearching] = useState(params.ara === '1');
   const [query, setQuery] = useState('');
 
-  // Ana sayfadaki kartlardan filtreyle gelindiğinde
-  const [lastParams, setLastParams] = useState(`${params.uye}|${params.tur}`);
-  if (`${params.uye}|${params.tur}` !== lastParams) {
-    setLastParams(`${params.uye}|${params.tur}`);
+  // Ana sayfadan filtreyle ya da aramayla gelindiğinde
+  const paramKey = `${params.uye}|${params.tur}|${params.ara}`;
+  const [lastParams, setLastParams] = useState(paramKey);
+  if (paramKey !== lastParams) {
+    setLastParams(paramKey);
     setMemberId(params.uye ?? null);
     setType(params.tur ?? 'all');
+    if (params.ara === '1') setSearching(true);
   }
-
-  const frequent = useMemo(() => {
-    const ids = frequentCategoryIds(transactions, 'expense');
-    const list = categories.filter((c) => c.type === 'expense');
-    return [...ids.map((id) => list.find((c) => c.id === id)).filter((c) => c !== undefined), ...list.filter((c) => !ids.includes(c.id))].slice(0, 4);
-  }, [transactions, categories]);
 
   const inMonth = useMemo(() => monthTransactions(transactions, month), [transactions, month]);
   const sum = useMemo(() => totals(inMonth), [inMonth]);
@@ -72,69 +71,64 @@ export default function Transactions() {
       header={
         <PageHeader
           title="İşlemler"
-          subtitle="Ailenin tüm gelir ve giderleri"
-          search={
-            <View style={[styles.search, { backgroundColor: t.surface }]}>
-              <Icon name="search" size={22} color={t.text} />
+          right={
+            <IconButton
+              icon={searching ? 'close' : 'search'}
+              label={searching ? 'Aramayı kapat' : 'Ara'}
+              onPress={() => {
+                setSearching((v) => !v);
+                setQuery('');
+              }}
+            />
+          }>
+          {searching ? (
+            <Animated.View entering={enter} style={[styles.search, { backgroundColor: t.surface }]}>
+              <Icon name="search" size={20} color={t.textMuted} weight="line" />
               <TextInput
                 value={query}
                 onChangeText={setQuery}
-                autoFocus={params.ara === '1'}
+                autoFocus
                 placeholder="Market, kira, Ahmet..."
                 placeholderTextColor={t.textMuted}
                 returnKeyType="search"
                 style={[styles.searchInput, { color: t.text }]}
               />
-              {query ? (
-                <Touch onPress={() => setQuery('')} hitSlop={10} accessibilityLabel="Aramayı temizle">
-                  <Icon name="close" size={18} color={t.textMuted} />
+            </Animated.View>
+          ) : (
+            // Siyah hap ay seçici
+            <View style={{ alignItems: 'center', marginTop: Spacing.two }}>
+              <Row style={[styles.monthPill, { backgroundColor: t.ink }]}>
+                <Touch onPress={() => setMonth((m) => shiftMonth(m, -1))} hitSlop={10} accessibilityLabel="Önceki ay" style={styles.monthArrow}>
+                  <View style={{ transform: [{ scaleX: -1 }] }}>
+                    <Icon name="chevronRight" color={t.onInk} size={16} />
+                  </View>
                 </Touch>
-              ) : null}
+                <T v="bodyBold" color={t.onInk} style={{ minWidth: 104, textAlign: 'center' }}>
+                  {monthLabel(month)}
+                </T>
+                <Touch
+                  onPress={() => !isCurrent && setMonth((m) => shiftMonth(m, 1))}
+                  hitSlop={10}
+                  accessibilityLabel="Sonraki ay"
+                  style={[styles.monthArrow, { opacity: isCurrent ? 0.3 : 1 }]}>
+                  <Icon name="chevronRight" color={t.onInk} size={16} />
+                </Touch>
+              </Row>
+              <Row style={{ gap: Spacing.three, marginTop: 12 }}>
+                <T v="small" color={t.income}>
+                  +{formatMoney(sum.income, { decimals: false })}
+                </T>
+                <T v="small" color={t.expense}>
+                  -{formatMoney(sum.expense, { decimals: false })}
+                </T>
+                <T v="small" muted>
+                  Fark {formatMoney(sum.balance, { decimals: false, sign: true })}
+                </T>
+              </Row>
             </View>
-          }
-        />
+          )}
+        </PageHeader>
       }>
-      {!query ? (
-        <>
-          <SectionLabel>Önerilen hızlı işlemler</SectionLabel>
-          <Row style={{ alignItems: 'flex-start' }}>
-            {frequent.map((c) => (
-              <RoundAction
-                key={c.id}
-                icon={c.icon}
-                label={c.name}
-                onPress={() => router.push({ pathname: '/ekle', params: { kategori: c.id } })}
-              />
-            ))}
-          </Row>
-
-          {/* Ay seçici ve özet */}
-          <Card style={{ marginTop: Spacing.four }}>
-            <Row style={{ justifyContent: 'space-between' }}>
-              <Touch onPress={() => setMonth((m) => shiftMonth(m, -1))} hitSlop={12} style={[styles.arrow, { backgroundColor: t.surfaceAlt }]} accessibilityLabel="Önceki ay">
-                <View style={{ transform: [{ scaleX: -1 }] }}>
-                  <Icon name="chevronRight" color={t.text} size={16} />
-                </View>
-              </Touch>
-              <T v="heading">{monthLabel(month)}</T>
-              <Touch
-                onPress={() => !isCurrent && setMonth((m) => shiftMonth(m, 1))}
-                hitSlop={12}
-                style={[styles.arrow, { backgroundColor: t.surfaceAlt, opacity: isCurrent ? 0.3 : 1 }]}
-                accessibilityLabel="Sonraki ay">
-                <Icon name="chevronRight" color={t.text} size={16} />
-              </Touch>
-            </Row>
-            <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.border, marginVertical: Spacing.three }} />
-            <Row>
-              <Stat label="Gelir" value={formatMoney(sum.income, { decimals: false })} color={t.income} />
-              <Stat label="Gider" value={formatMoney(sum.expense, { decimals: false })} color={t.expense} />
-              <Stat label="Fark" value={formatMoney(sum.balance, { decimals: false, sign: true })} />
-            </Row>
-          </Card>
-        </>
-      ) : null}
-
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -161,26 +155,27 @@ export default function Transactions() {
         </Card>
       ) : (
         <View>
-          {groups.map(([day, list]) => {
-            const net = totals(list).balance;
-            return (
-              <View key={day}>
-                <SectionLabel>{`${dayLabel(list[0].date)} · ${formatMoney(net, { sign: true, decimals: false })}`}</SectionLabel>
-                <Card style={{ paddingVertical: Spacing.one }}>
-                  {list.map((tx) => (
-                    <TransactionRow
-                      key={tx.id}
-                      tx={tx}
-                      onLongPress={() =>
-                        confirm('İşlem silinsin mi?', `${formatMoney(tx.amount)} tutarındaki işlem silinecek.`, () => removeTransaction(tx.id))
-                      }
-                    />
-                  ))}
-                </Card>
+          {groups.map(([day, list]) => (
+            <View key={day}>
+              {/* Ortalanmış gri gün başlığı */}
+              <T v="body" muted style={styles.dayHeader}>
+                {dayLabel(list[0].date)}
+              </T>
+              <View style={{ gap: 10 }}>
+                {list.map((tx) => (
+                  <TransactionRow
+                    key={tx.id}
+                    tx={tx}
+                    card
+                    onLongPress={() =>
+                      confirm('İşlem silinsin mi?', `${formatMoney(tx.amount)} tutarındaki işlem silinecek.`, () => removeTransaction(tx.id))
+                    }
+                  />
+                ))}
               </View>
-            );
-          })}
-          <T v="small" muted style={{ textAlign: 'center', marginTop: Spacing.three }}>
+            </View>
+          ))}
+          <T v="small" muted style={{ textAlign: 'center', marginTop: Spacing.four }}>
             Silmek için işleme basılı tut
           </T>
         </View>
@@ -189,32 +184,15 @@ export default function Transactions() {
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', gap: 2 }}>
-      <T v="small" muted>
-        {label}
-      </T>
-      <T v="bodyBold" color={color} numberOfLines={1} adjustsFontSizeToFit>
-        {value}
-      </T>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   search: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
     height: 50,
+    marginTop: Spacing.two,
     borderRadius: Radius.pill,
-    paddingHorizontal: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    paddingHorizontal: 18,
   },
   searchInput: {
     flex: 1,
@@ -222,11 +200,21 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     height: '100%',
   },
-  arrow: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  monthPill: {
+    height: 46,
+    borderRadius: Radius.pill,
+    paddingHorizontal: 6,
+    gap: 4,
+  },
+  monthArrow: {
+    width: 34,
+    height: 34,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  dayHeader: {
+    textAlign: 'center',
+    marginTop: Spacing.four,
+    marginBottom: 12,
   },
 });

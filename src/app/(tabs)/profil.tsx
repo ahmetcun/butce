@@ -40,7 +40,7 @@ export default function Profile() {
   }, [settings.billReminders, settings.reminderDaysBefore, settings.reminderHour, bills]);
 
   return (
-    <Page header={<PageHeader title="Profil" subtitle="Ailen, görünüm ve bildirimler" />}>
+    <Page header={<PageHeader title="Profil" />}>
       <FamilyStories />
 
       {/* Akbank "Aracım / Evim" kartları gibi kesik çizgili kart */}

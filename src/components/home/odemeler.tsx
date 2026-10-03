@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { MoneyInput, parseMoney, PillButton, TextField } from '@/components/form';
-import { HeroSummary } from '@/components/home/hero';
+import type { HeroData } from '@/components/home/hero';
 import { Icon } from '@/components/icon';
 import { Card, Chip, EmptyState, IconBubble, ListCard, PromoBanner, Row, SectionLabel, T, Touch } from '@/components/ui';
 import { enter, layout } from '@/constants/motion';
@@ -15,7 +15,7 @@ import { formatMoney, monthKey } from '@/lib/format';
 import { remindersSupported, requestReminderPermission } from '@/lib/reminders';
 import { useBudget } from '@/store/budget';
 
-export function OdemelerHero({ setAdding }: { setAdding: (v: boolean) => void }) {
+export function useOdemelerHero({ setAdding }: { setAdding: (v: boolean) => void }): HeroData {
   const bills = useBudget((s) => s.bills);
   const reminders = useBudget((s) => s.settings.billReminders);
   const updateSettings = useBudget((s) => s.updateSettings);
@@ -23,27 +23,24 @@ export function OdemelerHero({ setAdding }: { setAdding: (v: boolean) => void })
   const unpaid = bills.filter((b) => !b.paidMonths.includes(month));
   const remaining = unpaid.reduce((a, b) => a + b.amount, 0);
 
-  return (
-    <HeroSummary
-      label="Bu ay ödenecek"
-      value={remaining}
-      pill={{ icon: 'calendar', text: `${bills.length} düzenli ödeme · ${unpaid.length} bekliyor` }}
-      actions={[
-        { icon: 'plusCircle', label: 'Ödeme ekle', onPress: () => setAdding(true) },
-        {
-          icon: 'bellOutline',
-          label: reminders ? 'Hatırlatıcı ✓' : 'Hatırlat',
-          onPress: async () => {
-            if (reminders) return router.push('/profil');
-            if (await requestReminderPermission()) updateSettings({ billReminders: true });
-            else router.push('/profil');
-          },
+  return {
+    label: 'Bu ay ödenecek',
+    value: remaining,
+    pill: { icon: 'calendar', text: `${bills.length} düzenli ödeme · ${unpaid.length} bekliyor` },
+    actions: [
+      { icon: 'plusCircle', label: 'Ödeme ekle', onPress: () => setAdding(true) },
+      {
+        icon: 'bellOutline',
+        label: reminders ? 'Hatırlatıcı ✓' : 'Hatırlat',
+        onPress: async () => {
+          if (reminders) return router.push('/profil');
+          if (await requestReminderPermission()) updateSettings({ billReminders: true });
+          else router.push('/profil');
         },
-        { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
-        { icon: 'list', label: 'İşlemler', onPress: () => router.push('/islemler') },
-      ]}
-    />
-  );
+      },
+      { icon: 'arrowUp', label: 'Gider ekle', onPress: () => router.push('/ekle') },
+    ],
+  };
 }
 
 export function OdemelerBody({ adding, setAdding }: { adding: boolean; setAdding: (v: boolean) => void }) {
