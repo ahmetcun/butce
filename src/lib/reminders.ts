@@ -40,7 +40,13 @@ export async function requestReminderPermission() {
  * önümüzdeki aylarda "X gün kaldı" ve "bugün son gün" bildirimleri kurulur.
  */
 export async function syncBillReminders(bills: Bill[], settings: Settings) {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  // Yalnızca fatura hatırlatmalarını sil; bekleyen test bildirimi kalsın
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  await Promise.all(
+    scheduled
+      .filter((n) => n.content.data?.kind !== 'test')
+      .map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)),
+  );
   if (!settings.billReminders || bills.length === 0) return;
 
   const { granted } = await Notifications.getPermissionsAsync();
@@ -80,10 +86,33 @@ export async function syncBillReminders(bills: Bill[], settings: Settings) {
 
   for (const i of upcoming) {
     await Notifications.scheduleNotificationAsync({
-      content: { title: i.title, body: i.body, data: { url: '/?bolum=odemeler' } },
+      content: { title: i.title, body: i.body, data: { kind: 'bill', url: '/?bolum=odemeler' } },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: i.date, channelId: CHANNEL },
     });
   }
+}
+
+/**
+ * Bildirimlerin çalıştığını denemek için birkaç saniye sonra bir bildirim gönderir.
+ * İzin yoksa ister; izin verilmezse false döner.
+ */
+export async function sendTestNotification(seconds = 5) {
+  if (!(await requestReminderPermission())) return false;
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Test bildirimi 🔔',
+      body: 'Bildirimler çalışıyor! Fatura hatırlatmaları bu şekilde gelecek.',
+      data: { kind: 'test', url: '/?bolum=odemeler' },
+    },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds, channelId: CHANNEL },
+  });
+  return true;
+}
+
+/** Şu an planlanmış fatura hatırlatması sayısı. */
+export async function scheduledReminderCount() {
+  const all = await Notifications.getAllScheduledNotificationsAsync();
+  return all.filter((n) => n.content.data?.kind === 'bill').length;
 }
 
 /** Bildirime dokunulunca ilgili ekranı açmak için. */

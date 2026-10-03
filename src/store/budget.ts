@@ -105,6 +105,8 @@ type Actions = {
   contributeGoal: (id: string, amount: number) => void;
   removeGoal: (id: string) => void;
 
+  /** Mevcut işlem, ödeme, hedef ve üyelerin yerine örnek verileri koyar (ayarlar korunur). */
+  loadDemoData: () => void;
   resetAll: () => void;
 };
 
@@ -158,14 +160,53 @@ const initialState: State = {
   goals: [],
 };
 
-/** İlk açılışta "örnek verilerle dene" seçilirse */
+/**
+ * Örnek veriler: son 3 ayın gerçekçi aile harcamaları. Bazı faturaların son günü
+ * önümüzdeki günlere denk gelir; böylece hatırlatmalar hemen planlanır.
+ * Rastgelelik sabit tohumlu, her yüklemede aynı sonucu verir.
+ */
 function demoData(userName: string): Pick<State, 'members' | 'transactions' | 'bills' | 'goals' | 'categories'> {
   const now = new Date();
-  const day = (d: number, h = 12) => new Date(now.getFullYear(), now.getMonth(), Math.max(1, Math.min(d, now.getDate())), h).toISOString();
-  const tx = (type: TxType, amount: number, categoryId: string, memberId: string, date: string, note?: string): Transaction => ({
-    id: uid(), type, amount, categoryId, memberId, date, note,
-  });
+  let seed = 42;
+  const rand = (min: number, max: number) => {
+    seed = (seed * 16807) % 2147483647;
+    return Math.round(min + ((seed - 1) / 2147483646) * (max - min));
+  };
+
+  const transactions: Transaction[] = [];
+  const add = (monthsAgo: number, dayOfMonth: number, type: TxType, amount: number, categoryId: string, memberId: string, note?: string) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - monthsAgo, dayOfMonth, rand(9, 20), rand(0, 59));
+    if (d.getMonth() !== (now.getMonth() - monthsAgo + 12) % 12) return; // ayın son gününü taşma
+    if (d > now) return; // gelecek tarihli işlem olmasın
+    transactions.push({ id: uid(), type, amount, categoryId, memberId, date: d.toISOString(), note });
+  };
+
+  for (const m of [2, 1, 0]) {
+    const monthName = MONTHS[(now.getMonth() - m + 12) % 12];
+    add(m, 1, 'income', 52000, 'maas', ME, `${monthName} maaşı`);
+    add(m, 1, 'income', 38000, 'maas', 'es', `${monthName} maaşı`);
+    add(m, 2, 'expense', 18000, 'konut', ME, 'Kira');
+    for (const d of [3, 10, 17, 24]) add(m, d, 'expense', rand(1400, 2600), 'market', d % 2 ? 'es' : ME, 'Haftalık alışveriş');
+    for (let d = 2; d <= 30; d += rand(2, 4)) add(m, d, 'expense', rand(60, 180), 'market', ME, 'Ekmek & süt');
+    for (const d of [5, 19]) add(m, d, 'expense', rand(600, 950), 'ulasim', ME, 'Akaryakıt');
+    for (const d of [8, 15, 22, 27]) add(m, d, 'expense', rand(280, 750), 'yemek', d % 2 ? 'es' : ME);
+    add(m, 7, 'expense', rand(1150, 1450), 'fatura', ME, 'Elektrik');
+    add(m, 12, 'expense', rand(400, 950), 'cocuk', 'es', 'Okul masrafı');
+    for (const d of [14, 28]) add(m, d, 'expense', rand(180, 480), 'eglence', 'cocuk1');
+    add(m, 18, 'expense', rand(250, 600), 'saglik', 'es', 'Eczane');
+    add(m, 25, 'expense', 7400, 'kredi', ME, 'Kredi kartı');
+  }
+  add(1, 16, 'income', 3500, 'ekgelir', ME, 'Serbest iş');
+  add(1, 21, 'expense', 2400, 'giyim', 'es', 'Kışlık mont');
+  add(2, 11, 'expense', 1850, 'egitim', 'cocuk1', 'Kurs ücreti');
+  transactions.sort((x, y) => y.date.localeCompare(x.date));
+
+  // Son günleri bugünden itibaren yakın tarihlere denk gelen faturalar
+  const today = now.getDate();
+  const soon = (n: number) => Math.min(28, today + n);
   const month = monthKey(now);
+  const paidIfPast = (d: number) => (d < today ? [month] : []);
+
   return {
     members: [
       { id: ME, name: userName || 'Ben', emoji: '🙂' },
@@ -179,29 +220,19 @@ function demoData(userName: string): Pick<State, 'members' | 'transactions' | 'b
             : c.id === 'eglence' ? { ...c, limit: 1500 }
               : c,
     ),
-    transactions: [
-      tx('income', 52000, 'maas', ME, day(1, 9), `${MONTHS[now.getMonth()]} maaşı`),
-      tx('income', 38000, 'maas', 'es', day(1, 10)),
-      tx('expense', 18000, 'konut', ME, day(2), 'Kira'),
-      tx('expense', 1840, 'market', 'es', day(3), 'Haftalık alışveriş'),
-      tx('expense', 650, 'ulasim', ME, day(3), 'Akaryakıt'),
-      tx('expense', 420, 'yemek', ME, day(4)),
-      tx('expense', 2350, 'market', ME, day(5)),
-      tx('expense', 780, 'cocuk', 'es', day(6), 'Okul kırtasiye'),
-      tx('expense', 1290, 'fatura', ME, day(7), 'Elektrik'),
-      tx('expense', 310, 'eglence', 'cocuk1', day(8)),
-      tx('expense', 95, 'market', ME, day(9), 'Ekmek & süt'),
-    ],
+    transactions,
     bills: [
-      { id: uid(), name: 'Kira', amount: 18000, categoryId: 'konut', day: 2, paidMonths: [month] },
-      { id: uid(), name: 'Elektrik', amount: 1290, categoryId: 'fatura', day: 7, paidMonths: [month] },
-      { id: uid(), name: 'İnternet', amount: 549, categoryId: 'fatura', day: 15, paidMonths: [] },
-      { id: uid(), name: 'Doğalgaz', amount: 950, categoryId: 'fatura', day: 20, paidMonths: [] },
-      { id: uid(), name: 'Kredi kartı', amount: 7400, categoryId: 'kredi', day: 25, paidMonths: [] },
+      { id: uid(), name: 'Kira', amount: 18000, categoryId: 'konut', day: 2, paidMonths: paidIfPast(2) },
+      { id: uid(), name: 'Elektrik', amount: 1290, categoryId: 'fatura', day: 7, paidMonths: paidIfPast(7) },
+      { id: uid(), name: 'İnternet', amount: 549, categoryId: 'fatura', day: soon(1), paidMonths: [] },
+      { id: uid(), name: 'Su', amount: 320, categoryId: 'fatura', day: soon(2), paidMonths: [] },
+      { id: uid(), name: 'Doğalgaz', amount: 950, categoryId: 'fatura', day: soon(4), paidMonths: [] },
+      { id: uid(), name: 'Kredi kartı', amount: 7400, categoryId: 'kredi', day: 25, paidMonths: paidIfPast(25) },
     ],
     goals: [
       { id: uid(), name: 'Yaz tatili', emoji: '🏖️', target: 60000, saved: 21500 },
       { id: uid(), name: 'Acil durum fonu', emoji: '🛟', target: 100000, saved: 64000 },
+      { id: uid(), name: 'Yeni araba', emoji: '🚗', target: 400000, saved: 85000 },
     ],
   };
 }
@@ -298,6 +329,8 @@ export const useBudget = create<State & Actions>()(
         })),
 
       removeGoal: (id) => set((s) => ({ goals: s.goals.filter((g) => g.id !== id) })),
+
+      loadDemoData: () => set((s) => ({ ...demoData(s.settings.userName), settings: { ...s.settings, defaultMemberId: ME } })),
 
       resetAll: () => set({ ...initialState }),
     }),

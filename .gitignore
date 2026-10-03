@@ -48,3 +48,11 @@ IMG_*.png
 IMG_*.jpg
 IMG_*.jpeg
 IMG_*.HEIC
+Ekran Resmi *.png
+Ekran Resmi *.jpg
+Screenshot *.png
+/*.png
+/*.PNG
+/*.jpg
+/*.jpeg
+/*.HEIC

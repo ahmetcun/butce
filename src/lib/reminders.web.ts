@@ -9,6 +9,14 @@ export async function requestReminderPermission() {
 
 export async function syncBillReminders(_bills: Bill[], _settings: Settings) {}
 
+export async function sendTestNotification(_seconds = 5) {
+  return false;
+}
+
+export async function scheduledReminderCount() {
+  return 0;
+}
+
 export function onReminderTap(_handler: (url: string) => void) {
   return () => {};
 }

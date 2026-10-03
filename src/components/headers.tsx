@@ -289,6 +289,9 @@ const styles = StyleSheet.create({
     marginHorizontal: -Spacing.three,
   },
   tabsContent: {
+    // Sığıyorsa ortala, sığmıyorsa kaydırılabilir kalsın
+    flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: Spacing.three,
     gap: 22,
     paddingBottom: 10,

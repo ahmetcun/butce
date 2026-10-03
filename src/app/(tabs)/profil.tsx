@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -11,7 +11,7 @@ import { enter } from '@/constants/motion';
 import { Accents, FontFamily, Radius, Spacing, type AccentKey } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { confirm } from '@/lib/confirm';
-import { remindersSupported, requestReminderPermission } from '@/lib/reminders';
+import { remindersSupported, requestReminderPermission, scheduledReminderCount, sendTestNotification } from '@/lib/reminders';
 import { HomeSectionNames, useBudget, type HomeSectionKey } from '@/store/budget';
 
 const SECTION_ROW = 56;
@@ -24,7 +24,20 @@ export default function Profile() {
   const reorderHomeSections = useBudget((s) => s.reorderHomeSections);
   const toggleHomeSection = useBudget((s) => s.toggleHomeSection);
   const resetAll = useBudget((s) => s.resetAll);
+  const loadDemoData = useBudget((s) => s.loadDemoData);
+  const bills = useBudget((s) => s.bills);
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [testState, setTestState] = useState<'idle' | 'sent' | 'denied'>('idle');
+  const [scheduled, setScheduled] = useState<number | null>(null);
+
+  // Planlı hatırlatma sayısı (senkronizasyon yarım saniye geciktiği için biraz bekleyerek oku)
+  useEffect(() => {
+    if (!remindersSupported) return;
+    const id = setTimeout(() => {
+      scheduledReminderCount().then(setScheduled).catch(() => {});
+    }, 900);
+    return () => clearTimeout(id);
+  }, [settings.billReminders, settings.reminderDaysBefore, settings.reminderHour, bills]);
 
   return (
     <Page header={<PageHeader title="Profil" subtitle="Ailen, görünüm ve bildirimler" />}>
@@ -151,7 +164,30 @@ export default function Profile() {
                 />
               ))}
             </Row>
+            {scheduled !== null ? (
+              <T v="small" muted>
+                {scheduled > 0 ? `Şu an ${scheduled} hatırlatma planlı.` : 'Planlı hatırlatma yok: ödenmemiş fatura yok ya da tarihleri geçmiş.'}
+              </T>
+            ) : null}
           </Animated.View>
+        ) : null}
+        {remindersSupported ? (
+          <View style={{ gap: 8 }}>
+            <PillButton
+              outline
+              label={testState === 'sent' ? 'Gönderildi · 5 sn içinde gelecek' : 'Test bildirimi gönder'}
+              onPress={async () => {
+                const ok = await sendTestNotification(5);
+                setTestState(ok ? 'sent' : 'denied');
+                if (ok) setTimeout(() => setTestState('idle'), 6000);
+              }}
+            />
+            <T v="small" muted style={{ textAlign: 'center' }}>
+              {testState === 'denied'
+                ? 'Bildirim izni yok. Telefonun Ayarlar > Bildirimler kısmından izin ver.'
+                : 'Bastıktan sonra uygulamayı arka plana alıp kilit ekranında da görebilirsin.'}
+            </T>
+          </View>
         ) : null}
       </Card>
 
@@ -178,6 +214,27 @@ export default function Profile() {
 
       <SectionLabel>Veriler</SectionLabel>
       <Card style={{ paddingVertical: 0 }}>
+        <Touch
+          pressScale={0.98}
+          onPress={() =>
+            confirm(
+              'Örnek veriler yüklensin mi?',
+              'Son 3 ayın örnek işlemleri, faturaları ve hedefleri yüklenir. Mevcut işlemlerin yerine geçer; ayarların korunur.',
+              loadDemoData,
+              'Yükle',
+            )
+          }>
+          <Row style={[{ paddingVertical: 18, gap: Spacing.three }, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.border }]}>
+            <Icon name="sparkles" color={t.primary} size={22} />
+            <View style={{ flex: 1 }}>
+              <T v="bodyBold">Örnek verileri yükle</T>
+              <T v="small" muted>
+                Son 3 ay, 6 fatura, 3 hedef
+              </T>
+            </View>
+            <Icon name="chevronRight" color={t.text} size={18} />
+          </Row>
+        </Touch>
         <Touch
           pressScale={0.98}
           onPress={() =>
